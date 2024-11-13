@@ -154,6 +154,7 @@ function renderRows(data, containerId, type, maxPerAttribute) {
       <div class="attribute-header">
         <span class="attribute-name">${attribute.name}</span>
       </div>
+      <p>${attribute.description}</p>
       <p><strong>${affectedByText}:</strong> ${affectedValue}</p>
       <div class="input-controls">
         <button id="${type}-decrement-${index}" onclick="adjustPoints('${type}', ${index}, -1, ${maxPerAttribute})">-</button>
