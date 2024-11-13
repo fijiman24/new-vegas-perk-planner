@@ -1,0 +1,67 @@
+[
+  {
+    "name": "Barter",
+    "description": "Proficiency at trading and haggling. Also used to negotiate better quest rewards or occasionally as a bribe-like alternative to Speech.",
+    "special": "Charisma"
+  },
+  {
+    "name": "Energy Weapons",
+    "description": "Proficiency at using energy-based weapons.",
+    "special": "Perception"
+  },
+  {
+    "name": "Explosives",
+    "description": "Proficiency at using explosive weaponry, disarming mines, and crafting explosives.",
+    "special": "Perception"
+  },
+  {
+    "name": "Guns",
+    "description": "Proficiency at using weapons that fire standard ammunition.",
+    "special": "Agility"
+  },
+  {
+    "name": "Lockpick",
+    "description": "Proficiency at picking locks.",
+    "special": "Perception"
+  },
+  {
+    "name": "Medicine",
+    "description": "Proficiency at using medical tools, drugs, and for crafting Doctor's Bags.",
+    "special": "Intelligence"
+  },
+  {
+    "name": "Melee Weapons",
+    "description": "Proficiency at using melee weapons.",
+    "special": "Strength"
+  },
+  {
+    "name": "Repair",
+    "description": "Proficiency at repairing items and crafting items and ammunition.",
+    "special": "Intelligence"
+  },
+  {
+    "name": "Science",
+    "description": "Proficiency at hacking terminals, recycling energy ammunition at workbenches, crafting chems, and many dialog checks.",
+    "special": "Intelligence"
+  },
+  {
+    "name": "Sneak",
+    "description": "Proficiency at remaining undetected and stealing.",
+    "special": "Agility"
+  },
+  {
+    "name": "Speech",
+    "description": "Proficiency at persuading others. Also used to negotiate for better quest rewards and to talk your way out of combat, convincing people to give up vital information and succeeding in multiple Speech checks.",
+    "special": "Charisma"
+  },
+  {
+    "name": "Survival",
+    "description": "Proficiency at cooking, making poisons, and crafting 'natural' equipment and consumables. Also yields increased benefits from food.",
+    "special": "Endurance"
+  },
+  {
+    "name": "Unarmed",
+    "description": "Proficiency at unarmed fighting.",
+    "special": "Endurance"
+  }
+]

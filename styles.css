@@ -1,0 +1,47 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.section {
+  max-width: 600px;
+  margin: 20px;
+}
+
+.attribute-row {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.attribute-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attribute-name {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.points {
+  font-weight: bold;
+}
+
+.buttons {
+  display: flex;
+  gap: 5px;
+}
+
+button {
+  padding: 5px;
+  cursor: pointer;
+}
+
+input[type="number"] {
+  width: 50px;
+  text-align: center;
+}

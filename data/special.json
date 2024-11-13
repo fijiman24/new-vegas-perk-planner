@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Strength",
+    "description": "Strength is a measure of your raw physical power. It affects how much you can carry, the power of all melee attacks, and your effectiveness with many heavy weapons.",
+    "stats": ["Melee Weapons"]
+  },
+  {
+    "name": "Perception",
+    "description": "A high Perception grants a bonus to the Explosives, Lockpick and Energy Weapons, and determines when red compass markings appear (which indicate threats).",
+    "stats": ["Energy Weapons", "Explosives", "Lockpick"]
+  },
+  {
+    "name": "Endurance",
+    "description": "Endurance is a measure of your overall physical fitness. A high Endurance gives bonuses to health, environmental resistances, and the Survival and Unarmed skills.",
+    "stats": ["Survival", "Unarmed"]
+  },
+  {
+    "name": "Charisma",
+    "description": "Having a high Charisma will improve people's disposition towards you, and give bonuses to both the Barter and Speech skills.",
+    "stats": ["Barter", "Speech"]
+  },
+  {
+    "name": "Intelligence",
+    "description": "Intelligence affects the Science, Repair and Medicine skills. The higher your Intelligence, the more Skill Points you'll be able to distribute when you level up.",
+    "stats": ["Medicine", "Repair", "Science"]
+  },
+  {
+    "name": "Agility",
+    "description": "Agility affects your Guns and Sneak skills, the number of Action Points available for V.A.T.S., and weapon reload and holster speed.",
+    "stats": ["Guns", "Sneak"]
+  },
+  {
+    "name": "Luck",
+    "description": "Raising your luck will raise all of your skills a little. Having a high Luck will also improve your critical chance with all weapons.",
+    "stats": [
+      "Barter",
+      "Energy Weapons",
+      "Explosives",
+      "Guns",
+      "Lockpick",
+      "Medicine",
+      "Melee Weapons",
+      "Repair",
+      "Science",
+      "Sneak",
+      "Speech",
+      "Survival",
+      "Unarmed"
+    ]
+  }
+]
