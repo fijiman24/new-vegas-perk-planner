@@ -151,7 +151,7 @@ function renderAttributeRows(data, containerId, type, maxPerAttribute) {
         <span class="attribute-name">${attribute.name}</span>
       </div>
       <div class="input-controls">
-        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startDecrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()">-</button>
+        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startDecrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()" disabled>-</button>
         <input type="number" class="${type}-input" id="${attribute.name}-input" onchange="validateValue('${attribute.name}', '${type}', ${maxPerAttribute})" value="1" min="1" max="${maxPerAttribute}">
         <button id="increment-${attribute.name}" onclick="incrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startIncrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()">+</button>
       </div>
@@ -189,6 +189,7 @@ function validateValue(attributeName, type, maxPerAttribute) {
     input.value = maxPerAttribute;
   }
 
+  updateButtonStates(attributeName, maxPerAttribute);
   displayTotalPoints(type);
 }
 
@@ -226,29 +227,29 @@ function incrementAttribute(attributeName, type, maxPerAttribute) {
  * Updates the enabled/disabled states of the increment and decrement buttons.
  */
 function updateButtonStates(attributeName, maxPerAttribute) {
-  // const input = document.getElementById(`${attributeName}-input`);
-  // const decrementButton = document.getElementById(`decrement-${attributeName}`);
-  // const incrementButton = document.getElementById(`increment-${attributeName}`);
+  const input = document.getElementById(`${attributeName}-input`);
+  const decrementButton = document.getElementById(`decrement-${attributeName}`);
+  const incrementButton = document.getElementById(`increment-${attributeName}`);
 
-  // // Dispatch mouseup event before disabling the buttons
-  // function triggerMouseUpIfNeeded(button) {
-  //   if (button.disabled) {
-  //     const mouseUpEvent = new MouseEvent('mouseup', {
-  //       bubbles: true,
-  //       cancelable: true,
-  //       view: window
-  //     });
-  //     button.dispatchEvent(mouseUpEvent);
-  //   }
-  // }
+  // Now update the disabled states
+  decrementButton.disabled = parseInt(input.value) <= 1;
+  incrementButton.disabled = parseInt(input.value) >= maxPerAttribute;
 
-  // // Check and trigger mouseup on both buttons before changing their disabled state
-  // triggerMouseUpIfNeeded(decrementButton);
-  // triggerMouseUpIfNeeded(incrementButton);
+  // Dispatch mouseup event before disabling the buttons
+  function triggerMouseUpIfNeeded(button) {
+    if (button.disabled) {
+      const mouseUpEvent = new MouseEvent("mouseup", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
+      button.dispatchEvent(mouseUpEvent);
+    }
+  }
 
-  // // Now update the disabled states
-  // decrementButton.disabled = parseInt(input.value) <= 1;
-  // incrementButton.disabled = parseInt(input.value) >= maxPerAttribute;
+  // Check and trigger mouseup on both buttons before changing their disabled state
+  triggerMouseUpIfNeeded(decrementButton);
+  triggerMouseUpIfNeeded(incrementButton);
 }
 
 let incrementInterval;
