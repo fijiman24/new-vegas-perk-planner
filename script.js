@@ -132,21 +132,17 @@ const skillData = [
   },
 ];
 
-// Refactored JavaScript
-const maxPoints = 40;
-let allocatedPointsCount = 7;
+const maxSpecialPoints = 10;
+const maxSkillPoints = 100;
 
-// Generic Data Renderer
-function renderRows(data, containerId, type, maxPerAttribute) {
+/**
+ * Renders rows for numerical attributes (SPECIAL and Skills).
+ */
+function renderAttributeRows(data, containerId, type, maxPerAttribute) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
-  data.forEach((attribute, index) => {
-    const affectedByText =
-      type === "special" ? "Affected Skills" : "Affected by";
-    const affectedValue =
-      type === "special" ? attribute.stats.join(", ") : attribute.special;
-
+  data.forEach((attribute) => {
     const row = document.createElement("div");
     row.className = "attribute-row";
 
@@ -154,113 +150,59 @@ function renderRows(data, containerId, type, maxPerAttribute) {
       <div class="attribute-header">
         <span class="attribute-name">${attribute.name}</span>
       </div>
-      <p>${attribute.description}</p>
-      <p><strong>${affectedByText}:</strong> ${affectedValue}</p>
       <div class="input-controls">
-        <button id="${type}-decrement-${index}" onclick="adjustPoints('${type}', ${index}, -1, ${maxPerAttribute})">-</button>
-        <input type="number" id="${type}-input-${index}" value="1" min="1" max="${maxPerAttribute}">
-        <button id="${type}-increment-${index}" onclick="adjustPoints('${type}', ${index}, 1, ${maxPerAttribute})">+</button>
+        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}')">-</button>
+        <input type="number" class="${type}-input" id="${attribute.name}-input" onchange="displayTotalPoints('${type}')" value="1" min="1" max="${maxPerAttribute}">
+        <button id="increment-${attribute.name}" onclick="incrementAttribute('${attribute.name}', ${maxPerAttribute}, '${type}')">+</button>
       </div>
     `;
     container.appendChild(row);
   });
-
-  updateTotalPoints(type);
-  checkButtons(type);
 }
 
-const maxLevel = 50;
+/**
+ * Calculates and displays the total allocated points for an attribute type.
+ */
+function displayTotalPoints(type) {
+  const inputs = document.querySelectorAll(`.${type}-input`);
+  const totalPointDisplay = document.getElementById(`${type}-points-counter`);
 
-// Adjust Level with Boundaries
-function adjustLevel(change) {
-  const input = document.getElementById("level-input");
-  let value = parseInt(input.value);
+  let total = 0;
+  inputs.forEach((input) => {
+    total += parseInt(input.value) || 0;
+  });
 
-  if (change === 1 && value < maxLevel) {
-    value++;
-  } else if (change === -1 && value > 1) {
-    value--;
+  totalPointDisplay.innerHTML = total;
+}
+
+/**
+ * Decrements the value for a numerical attribute input.
+ */
+function decrementAttribute(attributeName, type) {
+  const input = document.getElementById(`${attributeName}-input`);
+  const currentVal = parseInt(input.value);
+
+  if (currentVal > 1) {
+      input.value = currentVal - 1;
+      displayTotalPoints(type);
   }
-
-  input.value = value;
 }
 
-function checkLevelButtons() {
-  const incrementButton = document.getElementById("level-increment");
-  const decrementButton = document.getElementById("level-decrement");
+/**
+ * Increments the value for a numerical attribute input.
+ */
+function incrementAttribute(attributeName, maxPerAttribute, type) {
+  const input = document.getElementById(`${attributeName}-input`);
+  const currentVal = parseInt(input.value);
 
-  incrementButton.addEventListener("click", () => {
-    const input = document.getElementById("level-input");
-    const value = parseInt(input.value);
-    // Disable the increment button if the level is at max
-    incrementButton.disabled = value >= maxLevel;
-    decrementButton.disabled = value <= 1;
-  });
-
-  decrementButton.addEventListener("click", () => {
-    const input = document.getElementById("level-input");
-    const value = parseInt(input.value);
-    // Disable the decrement button if the level is at 1
-    incrementButton.disabled = value >= maxLevel;
-    decrementButton.disabled = value <= 1;
-  });
-}
-
-// Adjust Points with Boundaries
-function adjustPoints(type, index, change, maxPerAttribute) {
-  const input = document.getElementById(`${type}-input-${index}`);
-  let value = parseInt(input.value);
-
-  if (
-    change === 1 &&
-    value < maxPerAttribute &&
-    allocatedPointsCount < maxPoints
-  ) {
-    value++;
-    allocatedPointsCount++;
-  } else if (change === -1 && value > 1) {
-    value--;
-    allocatedPointsCount--;
+  if (currentVal < maxPerAttribute) {
+      input.value = currentVal + 1;
+      displayTotalPoints(type);
   }
-
-  input.value = value;
-  updateTotalPoints(type);
-  checkButtons(type, maxPerAttribute);
-}
-
-// Update Total Points Display
-function updateTotalPoints(type) {
-  const pointsCounter = document.getElementById(`${type}-points-counter`);
-  pointsCounter.textContent = allocatedPointsCount;
-}
-
-// Check Buttons for Enable/Disable State
-function checkButtons(type, maxPerAttribute) {
-  const incrementButtons = document.querySelectorAll(
-    `[id^="${type}-increment-"]`
-  );
-  const decrementButtons = document.querySelectorAll(
-    `[id^="${type}-decrement-"]`
-  );
-
-  incrementButtons.forEach((button, index) => {
-    const input = document.getElementById(`${type}-input-${index}`);
-    const value = parseInt(input.value);
-
-    button.disabled =
-      allocatedPointsCount >= maxPoints || value >= maxPerAttribute;
-  });
-
-  decrementButtons.forEach((button, index) => {
-    const input = document.getElementById(`${type}-input-${index}`);
-    const value = parseInt(input.value);
-
-    button.disabled = value <= 1;
-  });
 }
 
 // Initialize rendering for each type
 document.addEventListener("DOMContentLoaded", () => {
-  renderRows(specialData, "special-rows", "special", 10);
-  renderRows(skillData, "skill-rows", "skill", 100);
+  renderAttributeRows(specialData, "special-rows", "special", maxSpecialPoints);
+  renderAttributeRows(skillData, "skill-rows", "skill", maxSkillPoints);
 });

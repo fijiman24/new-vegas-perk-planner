@@ -5,7 +5,7 @@ body {
 }
 
 .section {
-  max-width: 600px;
+  max-width: 300px;
   margin: 20px;
 }
 
@@ -13,35 +13,12 @@ body {
   border: 1px solid #ddd;
   padding: 15px;
   margin-bottom: 15px;
-  border-radius: 5px;
-}
-
-.attribute-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Ensures that content is spaced between */
   align-items: center;
+  margin-bottom: 10px; /* Optional, for spacing between rows */
 }
 
 .attribute-name {
-  font-weight: bold;
   font-size: 1.2em;
-}
-
-.points {
-  font-weight: bold;
-}
-
-.buttons {
-  display: flex;
-  gap: 5px;
-}
-
-button {
-  padding: 5px;
-  cursor: pointer;
-}
-
-input[type="number"] {
-  width: 50px;
-  text-align: center;
 }

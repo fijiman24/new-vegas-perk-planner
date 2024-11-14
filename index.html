@@ -4,23 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPECIAL Attributes</title>
+    <title>Fallout: New Vegas Build Planner</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <section class="section">
         <h1>Player Level</h1>
-        <div class="input-controls">
-            <button id="level-decrement" onclick="adjustLevel(-1)">-</button>
-            <input type="number" id="level-input" value="1" min="1" max="50" readonly>
-            <button id="level-increment" onclick="adjustLevel(1)">+</button>
-        </div>
     </section>
     <section class="section">
         <h1>S.P.E.C.I.A.L. Attributes</h1>
         <div class="points-counter">
-            Total Points: <span id="special-points-counter">7</span>/40
+            Points Spent: <span id="special-points-counter">7</span>/40
         </div>
         <div id="special-rows"></div>
     </section>
@@ -28,15 +23,13 @@
     <section class="section">
         <h1>Skills</h1>
         <div class="points-counter">
-            Total Points: <span id="skill-points-counter">7</span>/40
+            Points Spent: <span id="skill-points-counter">13</span>/40
+            Skills Tagged: <span id="tagged-points-counter">0</span>/3
         </div>
         <div id="skill-rows"></div>
     </section>
 
     <script src="script.js"></script>
-    <script>
-        window.onload = checkLevelButtons;
-    </script>
 </body>
 
 </html>
