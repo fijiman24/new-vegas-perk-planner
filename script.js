@@ -151,9 +151,9 @@ function renderAttributeRows(data, containerId, type, maxPerAttribute) {
         <span class="attribute-name">${attribute.name}</span>
       </div>
       <div class="input-controls">
-        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}')">-</button>
-        <input type="number" class="${type}-input" id="${attribute.name}-input" onchange="displayTotalPoints('${type}')" value="1" min="1" max="${maxPerAttribute}">
-        <button id="increment-${attribute.name}" onclick="incrementAttribute('${attribute.name}', ${maxPerAttribute}, '${type}')">+</button>
+        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startDecrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()">-</button>
+        <input type="number" class="${type}-input" id="${attribute.name}-input" onchange="validateValue('${attribute.name}', '${type}', ${maxPerAttribute})" value="1" min="1" max="${maxPerAttribute}">
+        <button id="increment-${attribute.name}" onclick="incrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startIncrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()">+</button>
       </div>
     `;
     container.appendChild(row);
@@ -176,29 +176,108 @@ function displayTotalPoints(type) {
 }
 
 /**
+ * Ensures manual user input remains in the attribute range.
+ */
+function validateValue(attributeName, type, maxPerAttribute) {
+  const input = document.getElementById(`${attributeName}-input`);
+  const currentVal = parseInt(input.value);
+  const min = 1;
+
+  if (currentVal < min) {
+    input.value = min;
+  } else if (currentVal > maxPerAttribute) {
+    input.value = maxPerAttribute;
+  }
+
+  displayTotalPoints(type);
+}
+
+/**
  * Decrements the value for a numerical attribute input.
  */
-function decrementAttribute(attributeName, type) {
+function decrementAttribute(attributeName, type, maxPerAttribute) {
   const input = document.getElementById(`${attributeName}-input`);
   const currentVal = parseInt(input.value);
 
   if (currentVal > 1) {
-      input.value = currentVal - 1;
-      displayTotalPoints(type);
+    input.value = currentVal - 1;
+    displayTotalPoints(type);
   }
+
+  updateButtonStates(attributeName, maxPerAttribute);
 }
 
 /**
  * Increments the value for a numerical attribute input.
  */
-function incrementAttribute(attributeName, maxPerAttribute, type) {
+function incrementAttribute(attributeName, type, maxPerAttribute) {
   const input = document.getElementById(`${attributeName}-input`);
   const currentVal = parseInt(input.value);
 
   if (currentVal < maxPerAttribute) {
-      input.value = currentVal + 1;
-      displayTotalPoints(type);
+    input.value = currentVal + 1;
+    displayTotalPoints(type);
   }
+
+  updateButtonStates(attributeName, maxPerAttribute);
+}
+
+/**
+ * Updates the enabled/disabled states of the increment and decrement buttons.
+ */
+function updateButtonStates(attributeName, maxPerAttribute) {
+  // const input = document.getElementById(`${attributeName}-input`);
+  // const decrementButton = document.getElementById(`decrement-${attributeName}`);
+  // const incrementButton = document.getElementById(`increment-${attributeName}`);
+
+  // // Dispatch mouseup event before disabling the buttons
+  // function triggerMouseUpIfNeeded(button) {
+  //   if (button.disabled) {
+  //     const mouseUpEvent = new MouseEvent('mouseup', {
+  //       bubbles: true,
+  //       cancelable: true,
+  //       view: window
+  //     });
+  //     button.dispatchEvent(mouseUpEvent);
+  //   }
+  // }
+
+  // // Check and trigger mouseup on both buttons before changing their disabled state
+  // triggerMouseUpIfNeeded(decrementButton);
+  // triggerMouseUpIfNeeded(incrementButton);
+
+  // // Now update the disabled states
+  // decrementButton.disabled = parseInt(input.value) <= 1;
+  // incrementButton.disabled = parseInt(input.value) >= maxPerAttribute;
+}
+
+let incrementInterval;
+let decrementInterval;
+
+/**
+ * Starts the increment interval for a numerical attribute input.
+ */
+function startIncrement(attributeName, type, maxPerAttribute) {
+  incrementInterval = setInterval(() => {
+    incrementAttribute(attributeName, type, maxPerAttribute);
+  }, 150); // Adjust the interval speed as needed
+}
+
+/**
+ * Starts the decrement interval for a numerical attribute input.
+ */
+function startDecrement(attributeName, type, maxPerAttribute) {
+  decrementInterval = setInterval(() => {
+    decrementAttribute(attributeName, type, maxPerAttribute);
+  }, 150); // Adjust the interval speed as needed
+}
+
+/**
+ * Stops the increment or decrement interval.
+ */
+function stopInterval() {
+  clearInterval(incrementInterval);
+  clearInterval(decrementInterval);
 }
 
 // Initialize rendering for each type
