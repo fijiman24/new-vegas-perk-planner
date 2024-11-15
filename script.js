@@ -132,13 +132,37 @@ const skillData = [
   },
 ];
 
-const maxSpecialPoints = 10;
-const maxSkillPoints = 100;
+const maxSpecialPointsPerAttribute = 10;
+const maxSkillPointsPerAttribute = 100;
+const maxSpecialPointsTotal = 40;
+let maxSkillPointsTotal = 0;
+const minSpecialPointsPerAttribute = 1;
+const minSkillPointsPerAttribute = 5;
+
+/**
+ * Calculate allocatable skill points.
+ */
+function calculateTotalAllocatableSkillPoints() {
+  const skillPointInputs = document.querySelectorAll(`.skill-input`);
+  const skillPointsTotalAllocatedDisplay = document.getElementById("skill-points-total");
+
+  skillPointInputs.forEach((input) => {
+    maxSkillPointsTotal += parseInt(input.value);
+  });
+
+  skillPointsTotalAllocatedDisplay.innerHTML = maxSkillPointsTotal;
+}
 
 /**
  * Renders rows for numerical attributes (SPECIAL and Skills).
  */
-function renderAttributeRows(data, containerId, type, maxPerAttribute) {
+function renderAttributeRows(
+  data,
+  containerId,
+  type,
+  minPerAttribute,
+  maxPerAttribute
+) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
@@ -148,22 +172,44 @@ function renderAttributeRows(data, containerId, type, maxPerAttribute) {
 
     row.innerHTML = `
       <div class="attribute-header">
-        <span class="attribute-name">${attribute.name}</span>
+          <span class="attribute-name">${attribute.name}</span>
       </div>
       <div class="input-controls">
-        <button id="decrement-${attribute.name}" onclick="decrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startDecrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()" disabled>-</button>
-        <input type="number" class="${type}-input" id="${attribute.name}-input" onchange="validateValue('${attribute.name}', '${type}', ${maxPerAttribute})" value="1" min="1" max="${maxPerAttribute}">
-        <button id="increment-${attribute.name}" onclick="incrementAttribute('${attribute.name}', '${type}', ${maxPerAttribute})" onmousedown="startIncrement('${attribute.name}', '${type}', ${maxPerAttribute})" onmouseup="stopInterval()">+</button>
+          <button class="${type}-decrement-button" 
+                  id="decrement-${attribute.name}" 
+                  onclick="decrementAttribute('${attribute.name}', '${type}')"
+                  onmousedown="startDecrement('${attribute.name}', '${type}')" 
+                  onmouseup="stopInterval()" 
+                  disabled>
+              -
+          </button>
+          <input type="number" 
+                 class="${type}-input" 
+                 id="${attribute.name}-input"
+                 onchange="validateValue('${attribute.name}', '${type}')" 
+                 value="${minPerAttribute}" 
+                 min="${minPerAttribute}"
+                 max="${maxPerAttribute}">
+          <button class="${type}-increment-button" 
+                  id="increment-${attribute.name}" 
+                  onclick="incrementAttribute('${attribute.name}', '${type}')"
+                  onmousedown="startIncrement('${attribute.name}', '${type}')" 
+                  onmouseup="stopInterval()">
+              +
+          </button>
       </div>
     `;
     container.appendChild(row);
+    updateButtonStates(attribute.name, type);
   });
+
+  calculateTotalAllocatableSkillPoints();
 }
 
 /**
  * Calculates and displays the total allocated points for an attribute type.
  */
-function displayTotalPoints(type) {
+function updateTotalAllocatedPoints(type) {
   const inputs = document.querySelectorAll(`.${type}-input`);
   const totalPointDisplay = document.getElementById(`${type}-points-counter`);
 
@@ -178,78 +224,104 @@ function displayTotalPoints(type) {
 /**
  * Ensures manual user input remains in the attribute range.
  */
-function validateValue(attributeName, type, maxPerAttribute) {
+function validateValue(attributeName, type) {
   const input = document.getElementById(`${attributeName}-input`);
   const currentVal = parseInt(input.value);
-  const min = 1;
+  const min = input.min;
+  const max = input.max;
 
   if (currentVal < min) {
     input.value = min;
-  } else if (currentVal > maxPerAttribute) {
-    input.value = maxPerAttribute;
+  } else if (currentVal > max) {
+    input.value = max;
   }
 
-  updateButtonStates(attributeName, maxPerAttribute);
-  displayTotalPoints(type);
+  updateTotalAllocatedPoints(type);
+  updateButtonStates(attributeName, type);
 }
 
 /**
  * Decrements the value for a numerical attribute input.
  */
-function decrementAttribute(attributeName, type, maxPerAttribute) {
+function decrementAttribute(attributeName, type) {
   const input = document.getElementById(`${attributeName}-input`);
   const currentVal = parseInt(input.value);
 
-  if (currentVal > 1) {
+  if (currentVal > input.min) {
     input.value = currentVal - 1;
-    displayTotalPoints(type);
+    updateTotalAllocatedPoints(type);
   }
 
-  updateButtonStates(attributeName, maxPerAttribute);
+  updateButtonStates(attributeName, type);
 }
 
 /**
  * Increments the value for a numerical attribute input.
  */
-function incrementAttribute(attributeName, type, maxPerAttribute) {
+function incrementAttribute(attributeName, type) {
   const input = document.getElementById(`${attributeName}-input`);
   const currentVal = parseInt(input.value);
 
-  if (currentVal < maxPerAttribute) {
+  if (currentVal < input.max) {
     input.value = currentVal + 1;
-    displayTotalPoints(type);
+    updateTotalAllocatedPoints(type);
   }
 
-  updateButtonStates(attributeName, maxPerAttribute);
+  updateButtonStates(attributeName, type);
+}
+
+/**
+ * Helper function that fires mouseup events on buttons.
+ * Used to mouseup after a button is disabled.
+ */
+function triggerMouseUpOnDisabledButton(button) {
+  if (button.disabled) {
+    const mouseUpEvent = new MouseEvent("mouseup", {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+    });
+    button.dispatchEvent(mouseUpEvent);
+  }
 }
 
 /**
  * Updates the enabled/disabled states of the increment and decrement buttons.
  */
-function updateButtonStates(attributeName, maxPerAttribute) {
+function updateButtonStates(attributeName, type) {
   const input = document.getElementById(`${attributeName}-input`);
   const decrementButton = document.getElementById(`decrement-${attributeName}`);
   const incrementButton = document.getElementById(`increment-${attributeName}`);
 
-  // Now update the disabled states
-  decrementButton.disabled = parseInt(input.value) <= 1;
-  incrementButton.disabled = parseInt(input.value) >= maxPerAttribute;
+  const currentTotalPoints = parseInt(
+    document.getElementById(`${type}-points-counter`).innerHTML
+  );
+  const maxTotalPoints = parseInt(
+    document.getElementById(`${type}-points-total`).innerHTML
+  );
+  const incrementButtons = document.querySelectorAll(
+    `.${type}-increment-button`
+  );
 
-  // Dispatch mouseup event before disabling the buttons
-  function triggerMouseUpIfNeeded(button) {
-    if (button.disabled) {
-      const mouseUpEvent = new MouseEvent("mouseup", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      button.dispatchEvent(mouseUpEvent);
+  // Determine whether to disable individual increment buttons or all for an attribute type
+  incrementButtons.forEach((button) => {
+    if (currentTotalPoints >= maxTotalPoints) {
+      button.disabled = true;
+      triggerMouseUpOnDisabledButton(button);
+    } else {
+      const correspondingAttributeName = button.id.split("-")[1];
+      const correspondingInput = document.getElementById(
+        `${correspondingAttributeName}-input`
+      );
+      button.disabled =
+        parseInt(correspondingInput.value) >= correspondingInput.max ||
+        currentTotalPoints >= maxTotalPoints;
     }
-  }
+  });
+  triggerMouseUpOnDisabledButton(incrementButton);
 
-  // Check and trigger mouseup on both buttons before changing their disabled state
-  triggerMouseUpIfNeeded(decrementButton);
-  triggerMouseUpIfNeeded(incrementButton);
+  decrementButton.disabled = parseInt(input.value) <= input.min;
+  triggerMouseUpOnDisabledButton(decrementButton);
 }
 
 let incrementInterval;
@@ -258,18 +330,18 @@ let decrementInterval;
 /**
  * Starts the increment interval for a numerical attribute input.
  */
-function startIncrement(attributeName, type, maxPerAttribute) {
+function startIncrement(attributeName, type) {
   incrementInterval = setInterval(() => {
-    incrementAttribute(attributeName, type, maxPerAttribute);
+    incrementAttribute(attributeName, type);
   }, 150); // Adjust the interval speed as needed
 }
 
 /**
  * Starts the decrement interval for a numerical attribute input.
  */
-function startDecrement(attributeName, type, maxPerAttribute) {
+function startDecrement(attributeName, type) {
   decrementInterval = setInterval(() => {
-    decrementAttribute(attributeName, type, maxPerAttribute);
+    decrementAttribute(attributeName, type);
   }, 150); // Adjust the interval speed as needed
 }
 
@@ -283,6 +355,20 @@ function stopInterval() {
 
 // Initialize rendering for each type
 document.addEventListener("DOMContentLoaded", () => {
-  renderAttributeRows(specialData, "special-rows", "special", maxSpecialPoints);
-  renderAttributeRows(skillData, "skill-rows", "skill", maxSkillPoints);
+  renderAttributeRows(
+    specialData,
+    "special-rows",
+    "special",
+    minSpecialPointsPerAttribute,
+    maxSpecialPointsPerAttribute
+  );
+  renderAttributeRows(
+    skillData,
+    "skill-rows",
+    "skill",
+    minSkillPointsPerAttribute,
+    maxSkillPointsPerAttribute
+  );
+  updateTotalAllocatedPoints("special");
+  updateTotalAllocatedPoints("skill");
 });
