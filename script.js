@@ -3,43 +3,43 @@ const specialData = [
     name: "Strength",
     description:
       "Strength is a measure of your raw physical power. It affects how much you can carry, the power of all melee attacks, and your effectiveness with many heavy weapons.",
-    stats: ["Melee Weapons"],
+    skills: ["Melee Weapons"],
   },
   {
     name: "Perception",
     description:
       "A high Perception grants a bonus to the Explosives, Lockpick and Energy Weapons, and determines when red compass markings appear (which indicate threats).",
-    stats: ["Energy Weapons", "Explosives", "Lockpick"],
+    skills: ["Energy Weapons", "Explosives", "Lockpick"],
   },
   {
     name: "Endurance",
     description:
       "Endurance is a measure of your overall physical fitness. A high Endurance gives bonuses to health, environmental resistances, and the Survival and Unarmed skills.",
-    stats: ["Survival", "Unarmed"],
+    skills: ["Survival", "Unarmed"],
   },
   {
     name: "Charisma",
     description:
       "Having a high Charisma will improve people's disposition towards you, and give bonuses to both the Barter and Speech skills.",
-    stats: ["Barter", "Speech"],
+    skills: ["Barter", "Speech"],
   },
   {
     name: "Intelligence",
     description:
       "Intelligence affects the Science, Repair and Medicine skills. The higher your Intelligence, the more Skill Points you'll be able to distribute when you level up.",
-    stats: ["Medicine", "Repair", "Science"],
+    skills: ["Medicine", "Repair", "Science"],
   },
   {
     name: "Agility",
     description:
       "Agility affects your Guns and Sneak skills, the number of Action Points available for V.A.T.S., and weapon reload and holster speed.",
-    stats: ["Guns", "Sneak"],
+    skills: ["Guns", "Sneak"],
   },
   {
     name: "Luck",
     description:
       "Raising your luck will raise all of your skills a little. Having a high Luck will also improve your critical chance with all weapons.",
-    stats: [
+    skills: [
       "Barter",
       "Energy Weapons",
       "Explosives",
@@ -132,38 +132,25 @@ const skillData = [
   },
 ];
 
+const levelData = [
+  {
+    name: "Level",
+  },
+];
+
 const maxSpecialPointsPerAttribute = 10;
 const maxSkillPointsPerAttribute = 100;
 const maxSpecialPointsTotal = 40;
-let maxSkillPointsTotal = 0;
+let maxSkillPointsTotal = 65;
 const minSpecialPointsPerAttribute = 1;
-const minSkillPointsPerAttribute = 5;
-
-/**
- * Calculate allocatable skill points.
- */
-function calculateTotalAllocatableSkillPoints() {
-  const skillPointInputs = document.querySelectorAll(`.skill-input`);
-  const skillPointsTotalAllocatedDisplay = document.getElementById("skill-points-total");
-
-  skillPointInputs.forEach((input) => {
-    maxSkillPointsTotal += parseInt(input.value);
-  });
-
-  skillPointsTotalAllocatedDisplay.innerHTML = maxSkillPointsTotal;
-}
+const minSkillPointsPerAttribute = 2;
+let baseMinSkillPointsTotal = 65;
 
 /**
  * Renders rows for numerical attributes (SPECIAL and Skills).
  */
-function renderAttributeRows(
-  data,
-  containerId,
-  type,
-  minPerAttribute,
-  maxPerAttribute
-) {
-  const container = document.getElementById(containerId);
+function renderAttributeRows(data, type, minPerAttribute, maxPerAttribute) {
+  const container = document.getElementById(`${type}-rows`);
   container.innerHTML = "";
 
   data.forEach((attribute) => {
@@ -202,23 +189,100 @@ function renderAttributeRows(
     container.appendChild(row);
     updateButtonStates(attribute.name, type);
   });
-
-  calculateTotalAllocatableSkillPoints();
 }
 
 /**
- * Calculates and displays the total allocated points for an attribute type.
+ * Calculates bonus for a given skill based on SPECIAL scores.
+ *
+ * Formulas are x2 SPECIAL stat to each associated skill except Luck, which gives a
+ * ceil(luck / 2) bonus to all skills.
+ */
+function calculateSpecialBonusForSkill(skill) {
+  const associatedSpecial = skill.special;
+  const specialValue = parseInt(
+    document.getElementById(`${associatedSpecial}-input`).value
+  );
+  const luckValue = parseInt(document.getElementById("Luck-input").value);
+
+  return 2 * specialValue + Math.ceil(luckValue / 2);
+}
+
+/**
+ * Calculates allocatable skill points for player's current level.
+ *
+ * Formula is (Intelligence x 0.5) + 10 skill points per level, with the
+ * half being turned into a full point every even level.
+ */
+function calculateAllocatableSkillPointsForLevel() {
+  const level = parseInt(document.getElementById("Level-input").value);
+  const intelligence = parseInt(
+    document.getElementById("Intelligence-input").value
+  );
+
+  return Math.floor(level * (intelligence * 0.5 + 10)) - 10; // Minus 10 cuz no skill point allocation level 1
+}
+
+/**
+ * Calculates minimum points per skill. Considers SPECIAL bonuses and TAG.
+ */
+function calculateAndDisplayMinimumSkillPoints() {
+  // TODO: Add TAG to skill minimums, too
+
+  baseMinSkillPointsTotal = 0;
+  skillData.forEach((skill) => {
+    const specialBonusForSkill = calculateSpecialBonusForSkill(skill);
+    baseMinSkillPointsTotal +=
+      minSkillPointsPerAttribute + specialBonusForSkill;
+
+    const skillInput = document.getElementById(`${skill.name}-input`);
+    skillInput.min = minSkillPointsPerAttribute + specialBonusForSkill;
+    skillInput.value = minSkillPointsPerAttribute + specialBonusForSkill;
+  });
+
+  const allocatedSkillPoints = document.getElementById("skill-points-counter");
+  if (parseInt(allocatedSkillPoints.innerHTML) < baseMinSkillPointsTotal) {
+    allocatedSkillPoints.innerHTML = baseMinSkillPointsTotal;
+  }
+}
+
+/**
+ * Calculates and displays the total allocatable skill points (number on right side of slash).
+ */
+function updateTotalAllocatableSkillPoints() {
+  const allocatablePointsDisplay =
+    document.getElementById(`skill-points-total`);
+  const level = parseInt(document.getElementById("Level-input").value);
+
+  calculateAndDisplayMinimumSkillPoints();
+  let allocatablePoints = baseMinSkillPointsTotal;
+
+  if (level > 1) {
+    allocatablePoints += calculateAllocatableSkillPointsForLevel();
+  }
+
+  allocatablePointsDisplay.innerHTML = allocatablePoints;
+  updateTotalAllocatedPoints("skill");
+
+  skillData.forEach((skill) => {
+    updateButtonStates(skill.name, "skill");
+  });
+}
+
+/**
+ * Calculates and displays the total allocated points (number on left side of slash) for an attribute type.
  */
 function updateTotalAllocatedPoints(type) {
   const inputs = document.querySelectorAll(`.${type}-input`);
-  const totalPointDisplay = document.getElementById(`${type}-points-counter`);
+  const allocatedPointsDisplay = document.getElementById(
+    `${type}-points-counter`
+  );
 
   let total = 0;
   inputs.forEach((input) => {
     total += parseInt(input.value) || 0;
   });
 
-  totalPointDisplay.innerHTML = total;
+  allocatedPointsDisplay.innerHTML = total;
 }
 
 /**
@@ -226,14 +290,25 @@ function updateTotalAllocatedPoints(type) {
  */
 function validateValue(attributeName, type) {
   const input = document.getElementById(`${attributeName}-input`);
-  const currentVal = parseInt(input.value);
-  const min = input.min;
-  const max = input.max;
+  const currentVal = parseInt(input.value) || 0;
+  const totalAllocatedPoints = parseInt(
+    document.getElementById(`${type}-points-counter`).innerHTML
+  );
+  const totalAllocatablePoints = parseInt(
+    document.getElementById(`${type}-points-total`).innerHTML
+  );
+  const min = parseInt(input.min);
+  const max = parseInt(input.max);
 
   if (currentVal < min) {
     input.value = min;
   } else if (currentVal > max) {
-    input.value = max;
+    // If setting input as max would exceed allocatable
+    if (max + totalAllocatedPoints > totalAllocatablePoints) {
+      input.value = input.min;
+    } else {
+      input.value = max;
+    }
   }
 
   updateTotalAllocatedPoints(type);
@@ -249,9 +324,9 @@ function decrementAttribute(attributeName, type) {
 
   if (currentVal > input.min) {
     input.value = currentVal - 1;
-    updateTotalAllocatedPoints(type);
   }
-
+  updateTotalAllocatableSkillPoints();
+  updateTotalAllocatedPoints(type);
   updateButtonStates(attributeName, type);
 }
 
@@ -264,9 +339,9 @@ function incrementAttribute(attributeName, type) {
 
   if (currentVal < input.max) {
     input.value = currentVal + 1;
-    updateTotalAllocatedPoints(type);
   }
-
+  updateTotalAllocatableSkillPoints();
+  updateTotalAllocatedPoints(type);
   updateButtonStates(attributeName, type);
 }
 
@@ -355,20 +430,20 @@ function stopInterval() {
 
 // Initialize rendering for each type
 document.addEventListener("DOMContentLoaded", () => {
+  renderAttributeRows(levelData, "level", 1, 50);
   renderAttributeRows(
     specialData,
-    "special-rows",
     "special",
     minSpecialPointsPerAttribute,
     maxSpecialPointsPerAttribute
   );
   renderAttributeRows(
     skillData,
-    "skill-rows",
     "skill",
     minSkillPointsPerAttribute,
     maxSkillPointsPerAttribute
   );
+  calculateAndDisplayMinimumSkillPoints();
   updateTotalAllocatedPoints("special");
   updateTotalAllocatedPoints("skill");
 });
