@@ -1,0 +1,48 @@
+[
+  { "title": "Abominable", "description": "Deal +3%/+6%/+10% damage to abominations.", "requirements": "Kill 50/100/150 abominations" },
+  { "title": "Animal Control", "description": "Deal +3%/+6%/+10% damage to mutated animals.", "requirements": "Kill 50/100/150 mutated animals" },
+  {
+    "title": "Beautiful Beatdown",
+    "description": "AP costs for unarmed attacks are reduced by 10%.",
+    "requirements": "Complete A Fistful of Hollars and inflict 10,000 damage with unarmed weapons."
+  },
+  { "title": "Bug Stomper", "description": "Deal +3%/+6%/+10% damage to mutated insects.", "requirements": "Kill 50/100/150 mutated insects" },
+  { "title": "Camel of the Mojave", "description": "Water items hydrate and heal you 15% better.", "requirements": "Drink 100 water items" },
+  { "title": "Day Tripper", "description": "The effects of addictive Chems last 33% longer.", "requirements": "Use 25 addictive Chems." },
+  { "title": "Dine and Dash", "description": "Get option to take Human remains when using Cannibal.", "requirements": "Eat 25 corpses with Cannibal perk." },
+  { "title": "Fast Times", "description": "Turbo's effects last +50% longer.", "requirements": "Use turbo 20 times" },
+  { "title": "Free Radical", "description": "10 additional rads removed upon each RadAway usage.", "requirements": "Use 20 RadAway" },
+  {
+    "title": "Friendly Help",
+    "description": "Mysterious Stranger and Miss Fortune are twice as likely to appear in V.A.T.S.",
+    "requirements": "Receive 15 Mysterious Stranger or Miss Fortune visits."
+  },
+  { "title": "Lord Death", "description": "Deal an extra +1%/+2%/+4% damage to all enemies.", "requirements": "Kill 200/700/1000 enemies" },
+  {
+    "title": "Machine Head",
+    "description": "Deal +3%/+6% damage to robots.",
+    "requirements": "Kill 50/100 robots (glitched; rank is misreported to player, rank 3 is unachievable)."
+  },
+  {
+    "title": "Meat of Champions",
+    "description": "+1 Luck, Strength, Charisma and Intelligence for 60 seconds each time a corpse is consumed.",
+    "requirements": "Cannibalize Mr. House, Caesar, The King and Aaron Kimball."
+  },
+  {
+    "title": "Melee Hacker",
+    "description": "Level 1: +5% melee weapon attack speed. Level 2: +10% melee weapon attack speed.",
+    "requirements": "First kill 125 enemies with melee weapons. For one rank, deal 10,000 damage with one-handed melee weapons. For another, deal 10,000 damage with two-handed melee weapons."
+  },
+  { "title": "Mutant Massacrer", "description": "Deal +3%/+6%/+10% damage to super mutants.", "requirements": "Kill 50/100/150 super mutants." },
+  {
+    "title": "Power Armor Training",
+    "description": "Ability to wear all power armor variants.",
+    "requirements": "Complete Eyesight to the Blind or Tend to Your Business or For Auld Lang Syne."
+  },
+  {
+    "title": "Set Lasers for Fun",
+    "description": "ALL energy weapons gain an extra +2%/+4% chance to get a critical hit.",
+    "requirements": "Deal 16,000 damage with pistol grip energy weapons for one rank and 25,000 damage with rifle grip energy weapons for the other."
+  },
+  { "title": "Tough Guy", "description": "Take 20% less limb damage.", "requirements": "Become crippled 50 times." }
+]

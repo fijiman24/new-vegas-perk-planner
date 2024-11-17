@@ -1,0 +1,54 @@
+[
+  { "title": "Better Healing", "description": "Regain +20% more health from all consumable sources.", "requirements": "Follower: Arcade Gannon" },
+  {
+    "title": "Enhanced Sensors",
+    "description": "Detect enemies at a very far range, and enemies that are cloaked can also be targeted in V.A.T.S.",
+    "requirements": "Follower: ED-E"
+  },
+  {
+    "title": "Regular Maintenance/Full Maintenance",
+    "description": "The condition of weapons and armor decays 50% slower (75% with Full Maintenance).",
+    "requirements": "Follower: Raul"
+  },
+  { "title": "Scribe Assistant", "description": "The player can craft workbench items through Veronica’s dialogue.", "requirements": "Follower: Veronica" },
+  {
+    "title": "Search and Mark",
+    "description": "Chems, firearms & ammunition within a short distance are highlighted when you zoom in.",
+    "requirements": "Follower: Rex"
+  },
+  { "title": "Spotter", "description": "Hostile targets are highlighted whenever the player is actively aiming.", "requirements": "Follower: Craig Boone" },
+  {
+    "title": "Stealth Girl",
+    "description": "Doubles Stealth Boy duration while also granting sneak attack criticals an extra 10% damage.",
+    "requirements": "Follower: Lily"
+  },
+  {
+    "title": "Whiskey Rose",
+    "description": "Eliminates negative effects of consumption and addiction to alcohol, while drinking specifically whiskey or wasteland tequila will raise player's Damage Threshold.",
+    "requirements": "Follower: Cass"
+  },
+  { "title": "In My Footsteps", "description": "Traps do not activate and you are given a stealth increase.", "requirements": "Follower: God" },
+  {
+    "title": "Ravenous Hunger",
+    "description": "Dog will devour the limbs of any Ghost People, preventing them from resurrecting.",
+    "requirements": "Follower: Dog"
+  },
+  { "title": "Signal Interference", "description": "+50% time to escape signals.", "requirements": "Follower: Christine" },
+  { "title": "Unclean Living", "description": "Temporary cloud protection, take 25% less damage.", "requirements": "Follower: Dean Domino" },
+  { "title": "Quiet As The Waters", "description": "White Legs' Perception is effectively decreased by 3.", "requirements": "Follower: Walking Cloud" },
+  {
+    "title": "The Way of the Canaanite",
+    "description": "Decrease in spread and double the critical chance for .45 Auto pistols",
+    "requirements": "Follower: Joshua Graham"
+  },
+  {
+    "title": "Well-Stacked Cairns",
+    "description": "Reaching various summits reveals nearby map markers and grants +3 Perception temporarily.",
+    "requirements": "Follower: Follows-Chalk"
+  },
+  {
+    "title": "Camarader-E",
+    "description": "ED-E repairs 25% weapon condition once per day, ED-E produces energy or microfusion cells once per day, +2 DT, +5 beam weapon damage, +5% V.A.T.S. hit chance",
+    "requirements": "Follower: ED-E"
+  }
+]

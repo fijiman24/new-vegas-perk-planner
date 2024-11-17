@@ -1,0 +1,121 @@
+[
+  {
+    "title": "Khan Trick",
+    "description": "Temporarily stun opponents by throwing dust or dirt at their eyes (requires dirt or sand ground)",
+    "requirements": "Perform all Great Khan drug runs."
+  },
+  { "title": "Legion Assault", "description": "Knock back opponents", "requirements": "Talk to Lucius with 50 Unarmed." },
+  {
+    "title": "Ranger Takedown",
+    "description": "Knock down opponents",
+    "requirements": "Talk to Ranger Andy with 30 Speech or complete the unmarked quest, Andy and Charlie."
+  },
+  {
+    "title": "Scribe Counter",
+    "description": "Quick counter-attack after block",
+    "requirements": "Put Formal wear or White Glove Society attire into Veronica Santangelo's inventory."
+  },
+  {
+    "title": "Coin Operator",
+    "description": "Adds recipe. 1 fission battery + 2 scrap metal = 50 Sierra Madre chips",
+    "requirements": "Dialogue with Christine"
+  },
+  {
+    "title": "Ghost Hunter",
+    "description": "Ghost people are more likely to die outright without needing to be dismembered or disintegrated.",
+    "requirements": "Dialogue with Dog"
+  },
+  {
+    "title": "Sierra Madre Martini",
+    "description": "Adds recipe to create Sierra Madre martinis with 2 junk food, 1 tin can, and 1 jar of Cloud residue.",
+    "requirements": "Dialogue with Dean Domino"
+  },
+  {
+    "title": "Elijah's Last Words",
+    "description": "Boosts Veronica's melee attack speed 150% & gives her a 25% chance for melee attacks to knock down enemies.",
+    "requirements": "Give Veronica holomessage from Elijah."
+  },
+  {
+    "title": "Elijah's Ramblings",
+    "description": "Boosts melee critical damage +50%.",
+    "requirements": "Keep holomessage from Elijah after Veronica unlocks it."
+  },
+  {
+    "title": "Brainless",
+    "description": "Head can no longer be crippled, +25% resistance to chem addiction, +5% DT (min +1)",
+    "requirements": "Initial dialogue with Doctor Klein in the think tank (optional to keep after completion of OWB if you keep your artificial brain)"
+  },
+  {
+    "title": "Heartless",
+    "description": "Cannot be poisoned, healing items are boosted +25%, robots have -50% crit chance.",
+    "requirements": "Initial dialogue with Doctor Klein in the think tank (optional to keep after completion of OWB if you keep your artificial brain)"
+  },
+  {
+    "title": "Spineless",
+    "description": "Strength+1, DT+1, torso can no longer be crippled.",
+    "requirements": "Initial dialogue with Doctor Klein in the think tank (optional to keep after completion of OWB if you keep your artificial brain)"
+  },
+  {
+    "title": "Big Brained",
+    "description": "Head cannot be crippled, +10% resistance to chem addiction, +10% DT (min +1).",
+    "requirements": "Sink Auto-Doc after Old World Blues is finished (optional to get if you take your organic brain back)"
+  },
+  {
+    "title": "Cardiac Arrest",
+    "description": "+50% poison resistance, healing items boosted by 50%, robots have -25% crit chance.",
+    "requirements": "Sink Auto-Doc after Old World Blues is finished (optional to get if you take your organic heart back)"
+  },
+  {
+    "title": "Reinforced Spine",
+    "description": "Strength+2, Damage Threshold+2",
+    "requirements": "Sink Auto-Doc after Old World Blues is finished (optional to get if you take your organic spine back)"
+  },
+  { "title": "DNAgent", "description": "All damage done to night stalkers is increased by 10%.", "requirements": "Completion of X-8 Data Retrieval Test" },
+  {
+    "title": "DNAvenger",
+    "description": "All the damage done to cazadores is increased cumulatively by 10% by rank.",
+    "requirements": "Kill two cazadores for rank 1, three more for rank 2, and another five for rank 3 of this perk. All kills must be made in the Big MT; cazadores outside the Big MT do not count."
+  },
+  {
+    "title": "Implant C-13",
+    "description": "Plus 10% damage to cazadores",
+    "requirements": "Surgery purchased through dialogue with the Sink Auto-Doc in The Sink for 8,000 caps."
+  },
+  {
+    "title": "Implant M-5",
+    "description": "Your crouched movement speed is increased by 20%.",
+    "requirements": "Surgery purchased through dialogue with the Sink Auto-Doc in The Sink for 10,000 caps."
+  },
+  {
+    "title": "Implant Y-3",
+    "description": "Removes any radiation taken from drinking an irradiated water source.",
+    "requirements": "Surgery purchased through dialogue with the Sink Auto-Doc in The Sink for 12,000 caps."
+  },
+  {
+    "title": "Implant Y-7",
+    "description": "+5 health and +2 restored action points through the consumption of food.",
+    "requirements": "Surgery purchased through dialogue with the Sink Auto-Doc in The Sink for 20,000 caps."
+  },
+  { "title": "The Bear-Slayer", "description": "+1 SPECIAL point, Caesar's Legion Fame, NCR Infamy", "requirements": "Launch nuclear missiles at NCR." },
+  {
+    "title": "Dead Man's Burden",
+    "description": "+1 SPECIAL point, Boomers and Powder Gangers Fame, Caesar's Legion and NCR Infamy",
+    "requirements": "Launch nuclear missiles at both Caesar's Legion and NCR."
+  },
+  {
+    "title": "Divide Survivor",
+    "description": "+1 SPECIAL point, Brotherhood of Steel and Followers of the Apocalypse Fame",
+    "requirements": "Stop the missile launch."
+  },
+  {
+    "title": "Lonesome Road",
+    "description": "+10% damage and +10% V.A.T.S. hit chance when you have no companions.",
+    "requirements": "Leave ED-E behind in Ulysses' Temple."
+  },
+  { "title": "Marked", "description": "+10% damage and +10% DT against Marked Men", "requirements": "Kill three named Marked Men." },
+  {
+    "title": "Scourge of the East",
+    "description": "+1 SPECIAL point, NCR Fame, Caesar's Legion Infamy",
+    "requirements": "Launch nuclear missiles at Caesar's Legion."
+  }
+]
