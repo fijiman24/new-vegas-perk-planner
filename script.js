@@ -159,28 +159,11 @@ const minPointsPerSpecial = 1;
 const initialMinPointsPerSkill = 2;
 let initialMinSkillPointsTotal = 65;
 
-function addAttributesToSkills(skillData) {
-  skillData.forEach((skill) => {
-    skill.pointsAllocated = 0; // Points added by the user, not including default min or bonuses
-    skill.specialBonus = 0;
-    skill.luckBonus = 0;
-    skill.tagBonus = 0;
-    skill.min = initialMinPointsPerSkill;
-    skill.max = 100;
-    skill.total = skill.min + skill.pointsAllocated;
-  });
-}
-
-function addAttributesToSpecials(specialData) {
-  specialData.forEach((special) => {
-    special.pointsAllocated = 0; // Points added by the user, not including default min or bonuses
-    special.implantBonus = 0;
-    special.min = minPointsPerSpecial;
-    special.max = 10;
-    special.total = special.min + special.pointsAllocated;
-  });
-}
-
+/**
+ * Updates the minimum skill value based on relevant bonuses (SPECIAL, TAG, books).
+ *
+ * @param {object} skill
+ */
 function updateMinSkillValue(skill) {
   skill.min = initialMinPointsPerSkill + skill.specialBonus + skill.luckBonus + skill.tagBonus;
 
@@ -190,6 +173,11 @@ function updateMinSkillValue(skill) {
   }
 }
 
+/**
+ * Updates the minimum skill value based on relevant bonuses (SPECIAL, implants, books).
+ *
+ * @param {object} special
+ */
 function updateMinSpecialValue(special) {
   special.min = minPointsPerSpecial + special.implantBonus;
 
@@ -199,6 +187,12 @@ function updateMinSpecialValue(special) {
   }
 }
 
+/**
+ * Calculates the total attribute value by adding allocated pointst to base minimum.
+ * Displays the total in the attribute input field.
+ *
+ * @param {object} attribute
+ */
 function calculateAndDisplayAttributeTotal(attribute) {
   attribute.total = attribute.min + attribute.pointsAllocated;
   const input = document.getElementById(`${attribute.name}-input`);
@@ -206,7 +200,9 @@ function calculateAndDisplayAttributeTotal(attribute) {
 }
 
 /**
- * Calculates and displays the total allocated points (number on left side of slash) for an attribute type.
+ * Updates the total points allocated for each attribute type (left side of slash).
+ *
+ *  @param {string} type
  */
 function updateTotalAllocatedPointsForType(type) {
   let totalAllocated = 0;
@@ -233,6 +229,10 @@ function updateTotalAllocatedPointsForType(type) {
 
 /**
  * Ensures manual user input remains in the attribute range.
+ *
+ * @param {object} attribute
+ * @param {string} type
+ * @returns
  */
 function validateValue(attribute, type) {
   const input = document.getElementById(`${attribute.name}-input`);
@@ -245,34 +245,30 @@ function validateValue(attribute, type) {
 
   if (pointsBeingAllocated < min) {
     attribute.pointsAllocated = 0;
-    // Bunch of if-else statements to handle if input would exceed total allocatable
-  } else if (
-    pointsBeingAllocated > attribute.pointsAllocated &&
-    (pointsBeingAllocated > max || pointsBeingAllocated - attribute.pointsAllocated + totalAllocatedPoints > totalAllocatablePoints)
-  ) {
-    if (totalAllocatedPoints >= totalAllocatablePoints) {
-      console.log("S");
-      attribute.pointsAllocated = attribute.pointsAllocated;
-    } else {
-      console.log("A");
-      console.log(max - min + totalAllocatedPoints - attribute.pointsAllocated);
-      console.log(totalAllocatablePoints);
-
-      if (max - min + totalAllocatedPoints - attribute.pointsAllocated <= totalAllocatablePoints) {
-        console.log("B");
-        attribute.pointsAllocated = max - min;
-      } else {
-        console.log("C");
-        attribute.pointsAllocated += totalAllocatablePoints - totalAllocatedPoints;
-      }
-    }
-  } else {
-    attribute.pointsAllocated = pointsBeingAllocated;
+    return;
   }
+
+  if (pointsBeingAllocated > attribute.pointsAllocated) {
+    const wouldExceedMax = pointsBeingAllocated > max;
+    const wouldExceedTotalAllocatable = pointsBeingAllocated - attribute.pointsAllocated + totalAllocatedPoints > totalAllocatablePoints;
+
+    if (wouldExceedMax || wouldExceedTotalAllocatable) {
+      if (totalAllocatedPoints >= totalAllocatablePoints) {
+        return;
+      }
+
+      attribute.pointsAllocated = Math.min(max - min, attribute.pointsAllocated + totalAllocatablePoints - totalAllocatedPoints);
+      return;
+    }
+  }
+
+  attribute.pointsAllocated = pointsBeingAllocated;
 }
 
 /**
  * Decrements the value for a numerical attribute input.
+ *
+ * @param {object} attribute
  */
 function decrementAttribute(attribute) {
   const input = document.getElementById(`${attribute.name}-input`);
@@ -285,6 +281,8 @@ function decrementAttribute(attribute) {
 
 /**
  * Increments the value for a numerical attribute input.
+ *
+ * @param {object} attribute
  */
 function incrementAttribute(attribute) {
   const input = document.getElementById(`${attribute.name}-input`);
@@ -298,8 +296,9 @@ function incrementAttribute(attribute) {
 /**
  * Calculates bonus for a given skill based on SPECIAL scores.
  *
- * Formulas are x2 SPECIAL stat to each associated skill except Luck, which gives a
- * ceil(luck / 2) bonus to all skills.
+ * 2x SPECIAL stat to each associated skill except Luck, which gives a ceil(luck / 2) bonus to all skills.
+ *
+ * @param {object} skill
  */
 function calculateSpecialBonusesForSkill(skill) {
   const associatedSpecial = specialData.find((special) => special.name === skill.special);
@@ -313,8 +312,9 @@ function calculateSpecialBonusesForSkill(skill) {
 /**
  * Calculates allocatable skill points for player's current level.
  *
- * Formula is (Intelligence x 0.5) + 10 skill points per level, with the
- * half being turned into a full point every even level.
+ * Formula is (Intelligence x 0.5) + 10 skill points per level, with the half being turned into a full point every even level.
+ *
+ * @param {string} type
  */
 function handleLevelInput(type) {
   if (type === "level") {
@@ -334,6 +334,12 @@ function handleLevelInput(type) {
   }
 }
 
+/**
+ * Scales skills with new SPECIAL input.
+ *
+ *  @param {object} attribute
+ * @param {string} type
+ */
 function handleSpecialInput(attribute, type) {
   if (type === "special") {
     let skills = skillData;
@@ -349,13 +355,11 @@ function handleSpecialInput(attribute, type) {
   }
 }
 
-function updateInputsWithAttributeTotals(attribute) {
-  const attributeInput = document.getElementById(`${attribute.name}-input`);
-  attributeInput.innerHTML = attribute.total;
-}
-
 /**
- * Renders rows for numerical attributes (Level, SPECIAL, and Skills).
+ * Renders rows for numerical attributes (Level, SPECIAL, and Skills) and applies element functions.
+ *
+ * @param {Array} data
+ * @param {string} type
  */
 function renderNumericalAttributeRows(data, type) {
   const container = document.getElementById(`${type}-rows`);
@@ -415,13 +419,15 @@ function renderNumericalAttributeRows(data, type) {
       handleUpdate(attribute);
     });
 
-    // TODO: Fix bug where it won't mouseup if totalAllocated exceeds totalAllocatable
     // Interval variables for increment/decrement
     let incrementInterval;
     let decrementInterval;
 
     /**
      * Starts the increment interval for a numerical attribute input.
+     *
+     * @param {object} attribute
+     * @param {string} type
      */
     function startIncrement(attribute, type) {
       incrementInterval = setInterval(() => {
@@ -432,6 +438,9 @@ function renderNumericalAttributeRows(data, type) {
 
     /**
      * Starts the decrement interval for a numerical attribute input.
+     *
+     * @param {object} attribute
+     * @param {string} type
      */
     function startDecrement(attribute, type) {
       decrementInterval = setInterval(() => {
@@ -442,6 +451,9 @@ function renderNumericalAttributeRows(data, type) {
 
     /**
      * Stops the increment or decrement interval.
+     *
+     * @param {object} attribute
+     * @param {string} type
      */
     function stopInterval() {
       clearInterval(incrementInterval);
@@ -472,6 +484,8 @@ function renderNumericalAttributeRows(data, type) {
 /**
  * Helper function that fires mouseup events on buttons.
  * Used to mouseup after a button is disabled.
+ * 
+ * @param {button} button 
  */
 function triggerMouseUpOnDisabledButton(button) {
   if (button.disabled) {
@@ -486,6 +500,9 @@ function triggerMouseUpOnDisabledButton(button) {
 
 /**
  * Updates the enabled/disabled states of the increment and decrement buttons.
+ * 
+ * @param {object} attribute 
+ * @param {string} type 
  */
 function updateButtonStates(attribute, type) {
   const input = document.getElementById(`${attribute.name}-input`);
@@ -514,19 +531,25 @@ function updateButtonStates(attribute, type) {
   triggerMouseUpOnDisabledButton(decrementButton);
 }
 
-function updateTotalAllocatableSkillPoints() {
-  const allocatedSkillPointDisplay = document.getElementById("skill-points-counter");
-  const allocatableSkillPointDisplay = document.getElementById("skill-points-total");
-
-  if (parseInt(allocatableSkillPointDisplay.innerHTML) < parseInt(allocatedSkillPointDisplay.innerHTML)) {
-    allocatableSkillPointDisplay.innerHTML = allocatedSkillPointDisplay.innerHTML;
-  }
-}
-
 // Initialize app
 document.addEventListener("DOMContentLoaded", () => {
-  addAttributesToSpecials(specialData);
-  addAttributesToSkills(skillData);
+  specialData.forEach((special) => {
+    special.pointsAllocated = 0; // Points added by the user, not including default min or bonuses
+    special.implantBonus = 0;
+    special.min = minPointsPerSpecial;
+    special.max = 10;
+    special.total = special.min + special.pointsAllocated;
+  });
+
+  skillData.forEach((skill) => {
+    skill.pointsAllocated = 0; // Points added by the user, not including default min or bonuses
+    skill.specialBonus = 0;
+    skill.luckBonus = 0;
+    skill.tagBonus = 0;
+    skill.min = initialMinPointsPerSkill;
+    skill.max = 100;
+    skill.total = skill.min + skill.pointsAllocated;
+  });
 
   skillData.forEach((skill) => {
     calculateSpecialBonusesForSkill(skill);
