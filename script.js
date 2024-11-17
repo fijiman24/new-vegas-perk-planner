@@ -381,8 +381,7 @@ function calculateSpecialBonusesForSkill(skill) {
  */
 function handleLevelInput(type) {
   if (type === "level") {
-    const levelInput = getElementByIdWithPrefix("Level", elementSuffix.INPUT);
-    const level = parseInt(levelInput.value);
+    const level = levelData[0].total;
     if (level > 1) {
       const intelligence = specialData.find((special) => special.name === "Intelligence");
 

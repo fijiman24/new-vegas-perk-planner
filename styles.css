@@ -105,6 +105,12 @@ input[type="checkbox"]:disabled {
   border: 2px solid var(--background-color);
 }
 
+input[type="checkbox"]:hover {
+  background-color: var(--main-color);
+  border: 2px solid var(--background-color);
+  cursor: pointer;
+}
+
 input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
@@ -117,6 +123,11 @@ input[type="number"] {
   width: 40px;
 }
 
+input[type="number"]:focus {
+  background-color: var(--background-color);
+  outline: none; /* Remove the default outline */
+}
+
 button {
   font-family: "Monofonto", Consolas, "Courier New", Courier, monospace;
   border: var(--main-color) 2px solid;
@@ -126,6 +137,12 @@ button {
   background-color: var(--background-color);
 }
 
+button:hover, button:active {
+    background-color: var(--main-color); /* Highlight background on hover */
+    color: var(--background-color); /* Text turns black */
+    cursor: pointer;
+}
+
 button:disabled {
   color: var(--background-color); /* Match background color */
   background-color: var(--background-color); /* Match background color */
@@ -133,5 +150,13 @@ button:disabled {
 }
 
 #Level-checkbox {
+  display: none;
+}
+
+#level-points-counter {
+  display: none;
+}
+
+#level-points-total {
   display: none;
 }
