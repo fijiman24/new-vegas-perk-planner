@@ -133,6 +133,49 @@ const levelData = [
   },
 ];
 
+const statData = [
+  {
+    name: "Melee Damage",
+    description: "Amount of bonus damage a character does with Melee Weapons",
+    special: "Strength",
+    formula: (special) => 0.5 * special,
+  },
+  {
+    name: "Carry Weight",
+    description: "How much can be carried before becoming overencumbered",
+    special: "Strength",
+    formula: (special) => 150 + special * 10,
+  },
+  {
+    name: "Hit Points",
+    description: "Used to measure the health of a character. Should a character be reduced to 0 HP, the character dies",
+    special: "Endurance",
+    level: levelData[0].total,
+    formula: (special, level) => 95 + special * 20 + level * 5,
+  },
+  {
+    name: "Poison Resistance",
+    description: "Poison damage reduction, chance to get poisoned",
+    special: "Endurance",
+    formula: (special) => (special - 1) * 5,
+  },
+  { name: "Radiation Resistance", description: "Reduction of radiation exposure", special: "Endurance", formula: (special) => special * 2 },
+  { name: "Nerve", description: "Boosts the damage and Damage Threshold of each companion", special: "Charisma", formula: (special) => 0.05 * special },
+  {
+    name: "Skill points per level-up",
+    description: "Can be allocated to skills to improve them",
+    special: "Intelligence",
+    formula: (special) => 10 + special / 2,
+  },
+  { name: "Critical Chance", description: "Chance to cause a critical hit", special: "Luck", formula: (special) => special * 0.01 },
+  {
+    name: "Action Points",
+    description: "Number of things a player can do during V.A.T.S. mode",
+    special: "Agility",
+    formula: (special) => 65 + 3 * special,
+  },
+];
+
 const pointAllocationData = {
   level: {
     allocated: 0,
@@ -334,11 +377,15 @@ function handleLevelInput(type) {
     skillData.forEach((skill) => {
       updateButtonStates(skill, "skill");
     });
+
+    // Update health points
+    const endurance = specialData.find((special) => special.name === "Endurance");
+    updateDerivedStats(endurance);
   }
 }
 
 /**
- * Scales skills and updates implant limit with new SPECIAL input.
+ * Scales stats and skills and updates implant limit with new SPECIAL input.
  *
  * @param {object} attribute
  * @param {string} type
@@ -350,7 +397,6 @@ function handleSpecialInput(attribute, type) {
       skills = skillData.filter((skill) => skill.special === attribute.name);
     }
     skills.forEach((skill) => {
-      const input = document.getElementById(`${skill.name}-input`);
       calculateSpecialBonusesForSkill(skill);
       calculateAndDisplayAttributeTotal(skill);
       updateTotalAllocatedPointsForType("skill");
@@ -362,6 +408,7 @@ function handleSpecialInput(attribute, type) {
     if (attribute.name === "Intelligence") {
       handleLevelInput("level");
     }
+    updateDerivedStats(attribute);
   }
 }
 
@@ -396,14 +443,16 @@ function handleAttributeCheckbox(attribute, type, isChecked) {
     if (type === "special") {
       attribute.min += 1;
     } else if (type === "skill") {
-      attribute.min += 15;
+      attribute.tagBonus += 15;
+      updateMinSkillValue(attribute);
     }
     pointAllocationData[type].checked += 1;
   } else {
     if (type === "special") {
       attribute.min -= 1;
     } else if (type === "skill") {
-      attribute.min -= 15;
+      attribute.tagBonus -= 15;
+      updateMinSkillValue(attribute);
     }
     pointAllocationData[type].checked -= 1;
   }
@@ -431,6 +480,60 @@ function updateCheckboxStates(type) {
       checkbox.disabled = false; // Re-enable all checkboxes
     });
   }
+
+  specialData.forEach((special) => {
+    // Can't implant maxxed stats
+    if (special.total >= special.max) {
+      const specialCheckbox = document.getElementById(`${special.name}-checkbox`);
+      if (!specialCheckbox.checked) {
+        specialCheckbox.disabled = true;
+      }
+    }
+  });
+}
+
+/**
+ * Renders stats derived from SPECIAL attributes.
+ */
+function renderDerivedStats() {
+  // Render Derived Stats
+  statData.forEach((stat) => {
+    const derivedStatItem = document.createElement("div");
+    derivedStatItem.classList.add("derived-stat-item");
+    derivedStatItem.innerHTML = `
+        <p class="stat-name">${stat.name}:</p>
+        <p id="${stat.name}-value">--</p>
+      `;
+    document.getElementById("derived-stats").appendChild(derivedStatItem);
+  });
+
+  // Update their values
+  specialData.forEach((special) => {
+    updateDerivedStats(special);
+  });
+}
+
+function updateDerivedStats(special) {
+  const points = special.total;
+  const derivedStats = statData.filter((stat) => stat.special === special.name);
+  const level = levelData[0].total;
+  let value;
+
+  derivedStats.forEach((stat) => {
+    if (stat) {
+      if (stat.name == "Hit Points") {
+        value = stat.formula(points, level);
+      } else {
+        value = stat.formula(points);
+      }
+
+      // Round the value to the nearest tenth
+      value = Math.round(value * 100) / 100;
+
+      // Update the element with the rounded value
+      document.getElementById(`${stat.name}-value`).innerText = `${value}`;
+    }
+  });
 }
 
 /**
@@ -656,4 +759,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderNumericalAttributeRows(levelData, "level");
   renderNumericalAttributeRows(specialData, "special");
   renderNumericalAttributeRows(skillData, "skill");
+  renderDerivedStats();
 });

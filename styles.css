@@ -39,3 +39,25 @@ input[type="number"] {
 #Level-checkbox {
   display: none;
 }
+
+/* Derived Stats Container */
+.derived-stat-container {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  margin-top: 20px;
+}
+
+.derived-stat-item {
+  display: flex;
+}
+
+.stat-name {
+  padding-right: 10px;
+}
+
+.derived-stat-value {
+  color: #4caf50;
+  font-weight: bold;
+}
