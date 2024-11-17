@@ -143,21 +143,20 @@ const pointAllocationData = {
     allocated: 0,
     maxEach: 10,
     maxAllocatable: 33,
+    checked: 0,
+    maxChecked: 1,
   },
   skill: {
     allocated: 0,
     maxEach: 100,
     maxAllocatable: 0,
+    checked: 0,
+    maxChecked: 3,
   },
 };
 
-const maxSpecialPointsPerSpecial = 10;
-const maxSkillPointsPerSkill = 100;
-const maxSpecialPointsTotal = 40;
-let maxSkillPointsTotal = 65;
 const minPointsPerSpecial = 1;
 const initialMinPointsPerSkill = 2;
-let initialMinSkillPointsTotal = 65;
 
 /**
  * Updates the minimum skill value based on relevant bonuses (SPECIAL, TAG, books).
@@ -319,11 +318,15 @@ function calculateSpecialBonusesForSkill(skill) {
 function handleLevelInput(type) {
   if (type === "level") {
     const level = parseInt(document.getElementById("Level-input").value);
-    const intelligence = specialData.find((special) => special.name === "Intelligence");
+    if (level > 1) {
+      const intelligence = specialData.find((special) => special.name === "Intelligence");
 
-    // Minus 10 cuz no skill point allocation level 1
-    const skillPointsForLevel = Math.floor(level * (intelligence.total * 0.5 + 10)) - 10;
-    pointAllocationData.skill.maxAllocatable = skillPointsForLevel;
+      // Minus 10 cuz no skill point allocation level 1
+      const skillPointsForLevel = Math.floor(level * (intelligence.total * 0.5 + 10)) - 10;
+      pointAllocationData.skill.maxAllocatable = skillPointsForLevel;
+    } else {
+      pointAllocationData.skill.maxAllocatable = 0;
+    }
 
     const totalAllocatableSkillPointDisplay = document.getElementById("skill-points-total");
     totalAllocatableSkillPointDisplay.innerHTML = pointAllocationData.skill.maxAllocatable;
@@ -335,9 +338,9 @@ function handleLevelInput(type) {
 }
 
 /**
- * Scales skills with new SPECIAL input.
+ * Scales skills and updates implant limit with new SPECIAL input.
  *
- *  @param {object} attribute
+ * @param {object} attribute
  * @param {string} type
  */
 function handleSpecialInput(attribute, type) {
@@ -351,6 +354,81 @@ function handleSpecialInput(attribute, type) {
       calculateSpecialBonusesForSkill(skill);
       calculateAndDisplayAttributeTotal(skill);
       updateTotalAllocatedPointsForType("skill");
+    });
+    if (attribute.name == "Endurance") {
+      updateImplantLimit(attribute);
+    }
+    // Recalculate allocatable skill points if Intelligence changes
+    if (attribute.name === "Intelligence") {
+      handleLevelInput("level");
+    }
+  }
+}
+
+/**
+ * Update and display implant limit, which is equal to Endurance.
+ *
+ * @param {object} endurance
+ */
+function updateImplantLimit(endurance) {
+  const enduranceCheckbox = document.getElementById(`${endurance.name}-checkbox`);
+
+  // Don't update implant limit if implanting endurance
+  if (enduranceCheckbox.checked) {
+    pointAllocationData.special.maxChecked = endurance.total - 1;
+  } else {
+    pointAllocationData.special.maxChecked = endurance.total;
+  }
+  updateTotalAllocatableDisplay(pointAllocationData.special.maxChecked, "special-checkbox");
+}
+
+/**
+ * Handles attribute checkbox; implant for SPECIAL, tag for skill.
+ *
+ * @param {object} attribute - The attribute being modified.
+ * @param {string} type - The type of attribute ("special" or "skill").
+ * @param {boolean} isChecked - Whether the checkbox is checked.
+ */
+function handleAttributeCheckbox(attribute, type, isChecked) {
+  const totalCheckedDisplay = document.getElementById(`${type}-checkbox-counter`);
+
+  if (isChecked) {
+    if (type === "special") {
+      attribute.min += 1;
+    } else if (type === "skill") {
+      attribute.min += 15;
+    }
+    pointAllocationData[type].checked += 1;
+  } else {
+    if (type === "special") {
+      attribute.min -= 1;
+    } else if (type === "skill") {
+      attribute.min -= 15;
+    }
+    pointAllocationData[type].checked -= 1;
+  }
+  totalCheckedDisplay.innerHTML = pointAllocationData[type].checked;
+}
+
+/**
+ * Disables/enables checkboxes of a type based on if checked boxes exceed the maximum.
+ *
+ * @param {string} type
+ */
+function updateCheckboxStates(type) {
+  const allCheckboxes = document.querySelectorAll(`.${type}-checkbox`);
+  const maxChecked = pointAllocationData[type].maxChecked;
+
+  // Disable/Enable checkboxes based on the current count
+  if (pointAllocationData[type].checked >= maxChecked) {
+    allCheckboxes.forEach((checkbox) => {
+      if (!checkbox.checked) {
+        checkbox.disabled = true; // Disable unchecked boxes
+      }
+    });
+  } else {
+    allCheckboxes.forEach((checkbox) => {
+      checkbox.disabled = false; // Re-enable all checkboxes
     });
   }
 }
@@ -377,6 +455,7 @@ function renderNumericalAttributeRows(data, type) {
     updateState(attribute);
     handleLevelInput(type);
     handleSpecialInput(attribute, type);
+    updateCheckboxStates(type);
   };
 
   data.forEach((attribute) => {
@@ -396,14 +475,17 @@ function renderNumericalAttributeRows(data, type) {
           <button class="${type}-increment-button" id="increment-${attribute.name}">
               +
           </button>
+          <input type="checkbox" class="${type}-checkbox" id="${attribute.name}-checkbox">
       </div>
     `;
+
     container.appendChild(row);
 
     // Get elements
     const decrementButton = document.getElementById(`decrement-${attribute.name}`);
     const incrementButton = document.getElementById(`increment-${attribute.name}`);
     const attributeInput = document.getElementById(`${attribute.name}-input`);
+    const checkbox = document.getElementById(`${attribute.name}-checkbox`);
 
     // Update the button states based on the attribute initially
     updateState(attribute);
@@ -478,14 +560,19 @@ function renderNumericalAttributeRows(data, type) {
       validateValue(attribute, type);
       handleUpdate(attribute);
     });
+
+    checkbox.addEventListener("change", function () {
+      handleAttributeCheckbox(attribute, type, this.checked);
+      handleUpdate(attribute);
+    });
   });
 }
 
 /**
  * Helper function that fires mouseup events on buttons.
  * Used to mouseup after a button is disabled.
- * 
- * @param {button} button 
+ *
+ * @param {button} button
  */
 function triggerMouseUpOnDisabledButton(button) {
   if (button.disabled) {
@@ -500,9 +587,9 @@ function triggerMouseUpOnDisabledButton(button) {
 
 /**
  * Updates the enabled/disabled states of the increment and decrement buttons.
- * 
- * @param {object} attribute 
- * @param {string} type 
+ *
+ * @param {object} attribute
+ * @param {string} type
  */
 function updateButtonStates(attribute, type) {
   const input = document.getElementById(`${attribute.name}-input`);
@@ -531,6 +618,11 @@ function updateButtonStates(attribute, type) {
   triggerMouseUpOnDisabledButton(decrementButton);
 }
 
+function updateTotalAllocatableDisplay(countable, type) {
+  const allocatablePointsDisplay = document.getElementById(`${type}-total`);
+  allocatablePointsDisplay.innerHTML = countable;
+}
+
 // Initialize app
 document.addEventListener("DOMContentLoaded", () => {
   specialData.forEach((special) => {
@@ -554,6 +646,12 @@ document.addEventListener("DOMContentLoaded", () => {
   skillData.forEach((skill) => {
     calculateSpecialBonusesForSkill(skill);
   });
+
+  updateTotalAllocatableDisplay(pointAllocationData.level.maxAllocatable, "level-points");
+  updateTotalAllocatableDisplay(pointAllocationData.special.maxAllocatable, "special-points");
+  updateTotalAllocatableDisplay(pointAllocationData.skill.maxAllocatable, "skill-points");
+  updateTotalAllocatableDisplay(pointAllocationData.special.maxChecked, "special-checkbox");
+  updateTotalAllocatableDisplay(pointAllocationData.skill.maxChecked, "skill-checkbox");
 
   renderNumericalAttributeRows(levelData, "level");
   renderNumericalAttributeRows(specialData, "special");
