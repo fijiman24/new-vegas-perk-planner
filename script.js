@@ -162,7 +162,7 @@ const statData = [
   },
   { name: "Nerve", description: "Boosts the damage and Damage Threshold of each companion", special: "Charisma", formula: (special) => 0.05 * special },
   {
-    name: "Skill Points Per Level",
+    name: "Skill Point Per Level",
     description: "Can be allocated to skills to improve them",
     special: "Intelligence",
     formula: (special) => 10 + special / 2,

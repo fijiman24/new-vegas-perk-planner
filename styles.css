@@ -17,6 +17,11 @@ body {
   background-color: var(--background-color);
 }
 
+#website-name {
+  margin-left: 18px;
+  font-size: 2.9em;
+}
+
 .section {
   max-width: 350px;
   margin: 50px 20px;
@@ -47,6 +52,7 @@ body {
 
 .derived-stat-item {
   display: flex;
+  margin-left: 10px;
 }
 
 .stat-name {
