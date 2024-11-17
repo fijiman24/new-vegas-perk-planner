@@ -10,36 +10,42 @@
 
 <body>
     <section class="section">
-        <h1>Player Level</h1>
+        <div class="section-title-container">
+            <h1 class="section-title">PLAYER LEVEL</h1>
+        </div>
         <div class="points-counter">
             Level ups: <span id="level-points-counter"></span>/<span id="level-points-total"></span></div>
         </div>
-        <div id="level-rows"></div>
+        <div class="attribte-rows" id="level-rows"></div>
     </section>
     <section class="section">
-        <h1>Derived Stats</h1>
-        <div class="derived-stat-container" id="derived-stats">
-            <!-- Derived stats will be populated by JavaScript -->
+        <div class="section-title-container">
+            <h1 class="section-title">BASE STATS</h1>
         </div>
+        <div class="derived-stat-container" id="derived-stats"></div>
     </section>
     <section class="section">
-        <h1>S.P.E.C.I.A.L. Attributes</h1>
+        <div class="section-title-container">
+            <h1 class="section-title">S.P.E.C.I.A.L. ATTRIBUTES</h1>
+        </div>
         <div class="points-counter">
             Points Spent: <span id="special-points-counter"></span>/<span id="special-points-total"></span>
             <br>
-            Implants Spent: <span id="special-checkbox-counter">0</span>/<span id="special-checkbox-total"></span>
+            Implants Spent: <span id="special-checkbox-counter">0</span>/<span id="implant-points-total"></span>
         </div>
-        <div id="special-rows"></div>
+        <div class="attribte-rows" id="special-rows"></div>
     </section>
 
     <section class="section">
-        <h1>Skills</h1>
+        <div class="section-title-container">
+            <h1 class="section-title">SKILLS</h1>
+        </div>
         <div class="points-counter">
             Points Spent: <span id="skill-points-counter"></span>/<span id="skill-points-total"></span>
             <br>
-            Tags Spent: <span id="skill-checkbox-counter">0</span>/<span id="skill-checkbox-total"></span>
+            Tags Spent: <span id="skill-checkbox-counter">0</span>/<span id="tag-points-total"></span>
         </div>
-        <div id="skill-rows"></div>
+        <div class="attribte-rows" id="skill-rows"></div>
     </section>
 
     <script src="script.js"></script>
