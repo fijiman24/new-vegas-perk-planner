@@ -211,10 +211,10 @@ const IMPLANT_BONUS = 10;
 /**
  * Returns a webpage element with a given prefix and suffix.
  * Use the elementSuffix values for suffix.
- * 
- * @param {string} prefix 
- * @param {string} suffix 
- * @returns 
+ *
+ * @param {string} prefix
+ * @param {string} suffix
+ * @returns
  */
 function getElementByIdWithPrefix(prefix, suffix) {
   return document.getElementById(`${prefix}-${suffix}`);
@@ -222,9 +222,9 @@ function getElementByIdWithPrefix(prefix, suffix) {
 
 /**
  * Calculates the new minimum value for an attribute based on its bonuses.
- * 
- * @param {object} attribute 
- * @param {Array} bonuses 
+ *
+ * @param {object} attribute
+ * @param {Array} bonuses
  */
 function updateMinValue(attribute, bonuses) {
   attribute.min = bonuses.reduce((sum, bonus) => sum + bonus, 0);
@@ -249,7 +249,7 @@ function updateMinSkillValue(skill) {
  * @param {object} special
  */
 function updateMinSpecialValue(special) {
-    updateMinValue(special, [MIN_POINTS_PER_SPECIAL, special.implantBonus]);
+  updateMinValue(special, [MIN_POINTS_PER_SPECIAL, special.implantBonus]);
 }
 
 /**
@@ -259,6 +259,11 @@ function updateMinSpecialValue(special) {
  * @param {object} attribute
  */
 function calculateAndDisplayAttributeTotal(attribute) {
+  // Logic for if SPECIAL is increased while Skill is already 100
+  if (attribute.min + attribute.pointsAllocated > attribute.max) {
+    attribute.pointsAllocated = attribute.max - attribute.min;
+  }
+
   attribute.total = attribute.min + attribute.pointsAllocated;
   const input = getElementByIdWithPrefix(attribute.name, elementSuffix.INPUT);
   input.value = attribute.total;
@@ -423,7 +428,7 @@ function handleSpecialInput(attribute, type) {
       updateTotalAllocatedPointsForType("skill");
     });
     if (attribute.name == "Endurance") {
-      updateCheckboxLimit(attribute);
+      updateCheckboxLimit(attribute, type);
     }
     // Recalculate allocatable skill points if Intelligence changes
     if (attribute.name === "Intelligence") {
@@ -438,17 +443,24 @@ function handleSpecialInput(attribute, type) {
  * For now, only used to update implant limit on Endurance change.
  *
  * @param {object} attribute
+ * @param {string} type
  */
-function updateCheckboxLimit(attribute) {
-  const enduranceCheckbox = getElementByIdWithPrefix(attribute.name, elementSuffix.CHECKBOX);
+function updateCheckboxLimit(attribute, type) {
+  const checkbox = getElementByIdWithPrefix(attribute.name, elementSuffix.CHECKBOX);
 
   // Don't update implant limit if implanting endurance
-  if (enduranceCheckbox.checked) {
-    pointAllocationData.special.maxChecked = attribute.total - 1;
+  if (checkbox.checked) {
+    pointAllocationData[type].maxChecked = attribute.total - 1;
   } else {
-    pointAllocationData.special.maxChecked = attribute.total;
+    pointAllocationData[type].maxChecked = attribute.total;
   }
-  updateTotalAllocatableDisplay(pointAllocationData.special.maxChecked, "implant");
+  updateTotalAllocatableDisplay(pointAllocationData[type].maxChecked, "implant");
+  const checkboxCounter = getElementByIdWithPrefix(type, elementSuffix.CHECKBOX_COUNTER);
+  if (pointAllocationData[type].maxChecked < pointAllocationData[type].checked) {
+    checkboxCounter.classList.add("points-exceeded");
+  } else {
+    checkboxCounter.classList.remove("points-exceeded");
+  }
 }
 
 /**
@@ -537,8 +549,8 @@ function renderDerivedStats() {
 
 /**
  * Update all derived stats for a given SPECIAL attribute.
- * 
- * @param {object} special 
+ *
+ * @param {object} special
  */
 function updateDerivedStats(special) {
   const points = special.total;
