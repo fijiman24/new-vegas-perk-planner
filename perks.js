@@ -200,7 +200,7 @@ const PERK_DATA = [
   {
     name: "Cowboy",
     description: "+25% damage done by dynamite, hatchets, knives, revolvers, and lever-action guns.",
-    requirements: "LVL8, Guns45, MeleeWEapons45",
+    requirements: "LVL8, Guns45, MeleeWeapons45",
     source: "Base Game",
     maxRank: 1,
   },
@@ -871,7 +871,8 @@ function perkRequirementsMet(perk, specialData, skillData, levelData) {
     if (skillMatch) {
       const skillName = skillMatch[1].trim();
       const requiredSkillValue = parseInt(skillMatch[2]);
-      const skill = skillData.find((s) => s.name === skillName);
+      skillData.forEach(skill => console.log(skill.name.replace(/\s/g, "")));
+      const skill = skillData.find((s) => s.name.replace(/\s/g, "") === skillName);
       return skill && skill.total >= requiredSkillValue;
     }
 
@@ -908,63 +909,50 @@ function updateSelectedPerks(perk) {
   }
 }
 
-function deselectPerk(perk) {
-  perk.ranksTaken = 0;
-  perk.levelTaken = 0;
-  const perkRemovedFromSelected = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name !== perk.name);
-  PERK_ALLOCATION_DATA.perksAllocated -= PERK_ALLOCATION_DATA.selectedPerks.length - perkRemovedFromSelected.length;
-  PERK_ALLOCATION_DATA.selectedPerks = perkRemovedFromSelected;
+function updatePerks(perk) {
   updateSelectedPerks(perk);
-  populatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
-  document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
-}
-
-function removePerkFromPlanner(perk) {
-  perk.ranksTaken -= 1;
-  PERK_ALLOCATION_DATA.selectedPerks.pop(perk);
-  PERK_ALLOCATION_DATA.perksAllocated -= 1;
-  if (perk.ranksTaken <= 0) {
-    perk.levelTaken = 0;
-    document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
-  }
-  updateSelectedPerks(perk);
-  populatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
+  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
 }
 
 function handlePerkClick(perk) {
-  const row = document.getElementById(`${perk.name}-perk-row`);
   // Prevent selection if requirements are not met
   if (!perk.requirementsMet) {
     return;
   }
 
   const selectedIndex = PERK_ALLOCATION_DATA.selectedPerks.findIndex((p) => p.name === perk.name);
-  const haveRemainingPerkPoints = PERK_ALLOCATION_DATA.perksAllocated < PERK_ALLOCATION_DATA.perksAllocatable;
 
   // Perk has not been selected yet
   if (selectedIndex === -1) {
-    // Within allocatable limits
-    if (haveRemainingPerkPoints) {
-      perk.ranksTaken += 1;
-      perk.levelTaken = perk.lvl;
-      PERK_ALLOCATION_DATA.selectedPerks.push(perk);
-      PERK_ALLOCATION_DATA.perksAllocated += 1;
-      row.classList.add("selected-perk"); // Highlight the selected row
-    }
+    selectPerk(perk);
   } else {
-    if (perk.ranksTaken < perk.maxRank && haveRemainingPerkPoints) {
-      perk.ranksTaken += 1;
-      perk.levelTaken = perk.lvl;
-      PERK_ALLOCATION_DATA.selectedPerks.push(perk);
-      PERK_ALLOCATION_DATA.perksAllocated += 1;
-      row.classList.add("selected-perk"); // Highlight the selected row
+    if (perk.ranksTaken < perk.maxRank) {
+      selectPerk(perk);
     } else {
       // Remove perk if already selected
-      deselectPerk(perk);
+      PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
+      perk.ranksTaken = 0;
+      perk.levelTaken = 0;
+      document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
+      PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
+      updatePerks(perk);
     }
   }
   updateSelectedPerks(perk);
-  populatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
+  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
+}
+
+function selectPerk(perk) {
+  const row = document.getElementById(`${perk.name}-perk-row`);
+  perk.ranksTaken += 1;
+  perk.levelTaken = perk.lvl;
+
+  // We need to copy the item to make sure different ranks of same perk have different IDs
+  PERK_ALLOCATION_DATA.selectedPerks.push(JSON.parse(JSON.stringify(perk)));
+  PERK_ALLOCATION_DATA.selectedPerks[PERK_ALLOCATION_DATA.selectedPerks.length - 1].id = PERK_ALLOCATION_DATA.perksAllocated;
+  PERK_ALLOCATION_DATA.perksAllocated += 1;
+
+  row.classList.add("selected-perk"); // Highlight the selected row
 }
 
 /**
@@ -1023,6 +1011,7 @@ function populatePerks(perkData, specialData, skillData, levelData) {
 
   perkData.forEach((perk) => {
     const row = document.createElement("tr");
+    row.className = "scrollable-table-row";
     row.id = `${perk.name}-perk-row`;
 
     // Disable perk rows where requirements are not met (all perks initially)
@@ -1057,101 +1046,129 @@ function populatePerks(perkData, specialData, skillData, levelData) {
   perkRows.appendChild(tableContainer);
 }
 
-// Function to populate the planner
-function populatePlanner(perks) {
+function renderPlanner() {
   const plannerRows = document.getElementById("planner-rows");
   plannerRows.innerHTML = ""; // Clear previous content
-
-  // Group perks by levelTaken
-  const perksByLevel = perks.reduce((acc, perk) => {
-    acc[perk.levelTaken] = acc[perk.levelTaken] || [];
-    acc[perk.levelTaken].push(perk);
-    return acc;
-  }, {});
 
   // Generate HTML content for all even levels from 1 to 50
   for (let level = 2; level <= 50; level += 2) {
     // Create a section for each level
     const levelSection = document.createElement("div");
     levelSection.classList.add("level-section");
-    levelSection.setAttribute("section-level", level); // Add level data for drag-and-drop
+    levelSection.setAttribute("section-level", level);
 
     // Add a header for the level
     const levelHeader = document.createElement("h2");
-    levelHeader.textContent = `Level ${level}`;
+    levelHeader.textContent = `-- Level ${level} --`;
     levelHeader.classList.add("level-header");
+
+    // Append header and perks list
     levelSection.appendChild(levelHeader);
 
-    // Add perks for this level (if any)
+    // Empty perks list for this level
     const perksList = document.createElement("ul");
     perksList.classList.add("planner-list");
+    levelSection.appendChild(perksList);
+
+    // Append to the planner rows
+    plannerRows.appendChild(levelSection);
+  }
+}
+
+// Function to populate the planner
+function updatePlanner(selectedPerks) {
+  renderPlanner(); // Render the level sections first
+
+  const plannerRows = document.getElementById("planner-rows");
+  const perksByLevel = selectedPerks.reduce((acc, perk) => {
+    acc[perk.levelTaken] = acc[perk.levelTaken] || [];
+    acc[perk.levelTaken].push(perk);
+    return acc;
+  }, {});
+
+  // Add perks to the appropriate sections
+  for (let level = 2; level <= 50; level += 2) {
+    const levelSection = plannerRows.querySelector(`[section-level="${level}"]`);
+    const perksList = levelSection.querySelector(".planner-list");
 
     if (perksByLevel[level]) {
-      perksByLevel[level].forEach((perk) => {
+      perksByLevel[level].forEach((selectedPerk) => {
         const perkItem = document.createElement("li");
         perkItem.classList.add("planner-item");
-        perkItem.setAttribute("name", perk.name);
-        perkItem.setAttribute("minLevel", perk.lvl);
-        perkItem.setAttribute("levelTaken", perk.levelTaken);
-        console.log(perk);
+        perkItem.setAttribute("id", selectedPerk.id);
+        perkItem.setAttribute("name", selectedPerk.name);
+        perkItem.setAttribute("minLevel", selectedPerk.lvl);
+        perkItem.setAttribute("levelTaken", selectedPerk.levelTaken);
 
         // Perk content and delete button
         perkItem.innerHTML = `
           <button class="remove-perk">x</button>
           <div class="perk-details">
-            <p>${perk.name}: ${perk.description}</p>
-            <p>Requirements: ${perk.requirementsArray}</p>
+            <p>${selectedPerk.name}: ${selectedPerk.description}</p>
+            <p>Requirements: ${selectedPerk.requirementsArray}</p>
           </div>
         `;
 
+        // Grey out perk rows where requirements are not met
+        if (!perkRequirementsMet(selectedPerk, specialData, skillData, levelData)) {
+          perkItem.classList.add("requirements-not-met");
+        } else {
+          perkItem.classList.remove("requirements-not-met");
+        }
+
         // Remove perk functionality
         perkItem.querySelector(".remove-perk").addEventListener("click", () => {
-          removePerkFromPlanner(perk);
+          removePerkFromPlanner(selectedPerk);
         });
 
         perksList.appendChild(perkItem);
       });
     }
 
-    levelSection.appendChild(perksList);
-    plannerRows.appendChild(levelSection);
-
-    // Initialize Sortable.js with onEnd event
+    // Initialize Sortable.js with onEnd and onMove events
     new Sortable(perksList, {
-      group: {
-        name: "shared",
-      },
+      group: { name: "shared" },
       animation: 150,
       onEnd: function (evt) {
         const draggedItem = evt.item; // The dragged list item
         const newLevel = evt.to.closest(".level-section").getAttribute("section-level"); // New level header
-        const perkName = draggedItem.getAttribute("name"); // Perk ID from the item
-        console.log(draggedItem);
-        // Update the `levelTaken` of the corresponding perk
-        const perk = perks.find((p) => p.name === perkName);
+        const perkId = parseInt(draggedItem.getAttribute("id")); // Perk ID from the item
+        const perk = selectedPerks.find((p) => parseInt(p.id) === perkId);
         if (perk) {
-          perk.levelTaken = parseInt(newLevel, 10);
-          console.log(`Updated perk "${perk.name}" to level ${newLevel}`);
+          perk.levelTaken = parseInt(newLevel);
         }
+        updatePlanner(selectedPerks);
       },
       onMove: function (evt) {
-        const draggedItem = evt.dragged; // The item being dragged
-        console.log(draggedItem);
-        const targetList = evt.to; // The target list
+        const draggedItem = evt.dragged;
+        const targetList = evt.to;
         const targetLevel = parseInt(targetList.closest(".level-section").getAttribute("section-level"), 10);
-        const perkName = draggedItem.getAttribute("name");
-        const perk = perks.find((p) => p.name === perkName);
+        const perkId = parseInt(draggedItem.getAttribute("id")); // Perk ID from the item
+        const perk = selectedPerks.find((p) => p.id === perkId);
 
-        // Allow the move only if the target level is greater than or equal to the perk's `lvl`
+        // Allow move only if the target level is valid
         if (perk && targetLevel < perk.lvl) {
-          console.log(`A perk with required level ${perk.lvl} cannot go into section Level ${targetLevel}`);
-          return false; // Prevent the move
+          return false;
         }
-        console.log(`A perk with required level ${perk.lvl} can go into section Level ${targetLevel}`);
-        return true; // Allow the move
+        return true;
       },
     });
   }
+}
+
+function removePerkFromPlanner(selectedPerk) {
+  const selectedPerks = PERK_ALLOCATION_DATA.selectedPerks;
+  const selectedIndex = selectedPerks.findIndex((p) => p.id === selectedPerk.id);
+  const masterPerk = PERK_DATA.find((p) => p.name === selectedPerk.name);
+
+  masterPerk.ranksTaken -= 1;
+  PERK_ALLOCATION_DATA.perksAllocated -= 1;
+  if (!masterPerk.ranksTaken) {
+    masterPerk.levelTaken = 0;
+    document.getElementById(`${selectedPerk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
+  }
+  selectedPerks.splice(selectedIndex, 1);
+  updatePerks(masterPerk);
 }
 
 // Populate perks on DOM content loaded
@@ -1163,5 +1180,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   populatePerks(PERK_DATA, specialData, skillData, levelData);
-  populatePlanner([]);
+  renderPlanner();
 });

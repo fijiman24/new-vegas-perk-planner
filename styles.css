@@ -17,14 +17,44 @@ body {
   background-color: var(--background-color);
 }
 
+/* For larger screens */
+@media screen and (max-width: 786px) {
+  body {
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .section {
+    max-width: 500px;
+    margin: 20px;
+  }
+}
+
+@media screen and (max-width: 4000px) {
+  body {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .section {
+    max-width: 350px;
+    margin: 20px;
+  }
+
+  .right-section {
+    align-self: flex-start;
+  }
+}
+
 #website-name {
   margin-left: 20px;
   font-size: 2.9em;
-  /* text-shadow: 0 0 30px var(--main-color); */
 }
 
 .section {
-  max-width: 400px;
   margin: 50px 20px;
   padding: 10px;
   border: var(--main-color) 3px solid;
@@ -100,6 +130,7 @@ input[type="checkbox"] {
   border: 2px solid var(--main-color); /* Red border */
   appearance: none; /* Removes the default checkbox styling */
   outline: none; /* Removes the outline when focused */
+  cursor: pointer;
 }
 
 input[type="checkbox"]:checked {
@@ -196,6 +227,10 @@ button:disabled {
   text-align: left;
 }
 
+.scrollable-table-row {
+  cursor: pointer;
+}
+
 .scrollable-table-data {
   padding: 8px;
   vertical-align: top;
@@ -226,13 +261,6 @@ button:disabled {
   margin-bottom: 10px;
   border: 1px solid var(--main-color);
   cursor: grab;
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
-}
-
-.planner-item:active {
-  cursor: grabbing;
 }
 
 .remove-perk {
@@ -251,4 +279,8 @@ button:disabled {
 
 .perk-details {
   margin-top: 30px;
+}
+
+.level-header {
+  text-align: center;
 }
