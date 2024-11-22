@@ -10,6 +10,7 @@ const ELEMENT_SUFFIXES = {
   ROWS: "rows",
   DECREMENT: "decrement",
   TOTAL: "total",
+  PERK_ROW: "perk-row",
 };
 
 const MIN_POINTS_PER_SPECIAL = 1;
@@ -566,7 +567,7 @@ function triggerMouseUpOnDisabledButton(button) {
  * @param {string} type
  */
 function updateButtonStates(attribute, type) {
-  const input = document.getElementById(`${attribute.name}-input`);
+  const input = getElementByIdWithPrefix(attribute.name, ELEMENT_SUFFIXES.INPUT);
   const decrementButton = getElementByIdWithPrefix(attribute.name, ELEMENT_SUFFIXES.DECREMENT);
   const incrementButton = document.getElementById(`increment-${attribute.name}`);
 
@@ -675,7 +676,7 @@ function perkRequirementsMet(perk, specialData, skillData, levelData) {
  */
 function updateSelectedPerks(perk) {
   // Update perk row in Perks section
-  const perkRow = document.getElementById(`${perk.name}-perk-row`);
+  const perkRow = getElementByIdWithPrefix(perk.name, ELEMENT_SUFFIXES.PERK_ROW);
   updatePerkStyling(perkRow, perk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
 
   const perkNameCell = perkRow.querySelector("td:first-child"); // Assuming name is in the first cell
@@ -696,7 +697,7 @@ function updateSelectedPerks(perk) {
   });
 
   // Update perk counter
-  const perkPointsCounter = document.getElementById("perk-points-counter");
+  const perkPointsCounter = getElementByIdWithPrefix("perk", ELEMENT_SUFFIXES.POINTS_COUNTER);
   perkPointsCounter.innerHTML = PERK_ALLOCATION_DATA.perksAllocated;
 
   // Change styling to notify user that perk points were exceeded
@@ -753,7 +754,7 @@ function handlePerkClick(perk) {
  * @param {object} perk
  */
 function selectPerk(perk) {
-  const row = document.getElementById(`${perk.name}-perk-row`);
+  const row = getElementByIdWithPrefix(perk.name, ELEMENT_SUFFIXES.PERK_ROW);
   perk.ranksTaken += 1;
   perk.levelTaken = perk.lvl;
 
@@ -775,7 +776,8 @@ function deselectPerk(perk) {
   PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
   perk.ranksTaken = 0;
   perk.levelTaken = 0;
-  document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
+
+  getElementByIdWithPrefix(perk.name, ELEMENT_SUFFIXES.PERK_ROW).classList.remove("selected-perk"); // Remove highlight
   PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
   updatePerks(perk);
   handlePerkAttributeChange(perk, false);
@@ -784,8 +786,8 @@ function deselectPerk(perk) {
 /**
  * Calculate the bonus to allocatable skill points given by the Educated perk at the current level.
  * Considers what level the perk was taken at.
- * 
- * @returns {number} - the bonus to allocatable skill points given by the Educated perk  
+ *
+ * @returns {number} - the bonus to allocatable skill points given by the Educated perk
  */
 function calculateEducatedPerkBonusSkillPoints() {
   const currentLevel = LEVEL_DATA[0].total;
@@ -803,11 +805,11 @@ function calculateEducatedPerkBonusSkillPoints() {
  * 1. Educated: 2 additional skill points per level up
  * 2. Intense Training: Additional SPECIAL allocation point
  * 3. Tag!: Additional taggable skill
- * 
+ *
  * Does not consider perks that affect base stats.
- * 
+ *
  * @param {object} perk
- * @param {boolean} selected - true if the perk was selected, else false 
+ * @param {boolean} selected - true if the perk was selected, else false
  * @param {number} intenseTrainingRanksToDeduct - other value is 1, when individual perk rank is removed from the planner
  */
 function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct = 10) {
@@ -1092,7 +1094,7 @@ function removePerkFromPlanner(selectedPerk) {
   PERK_ALLOCATION_DATA.perksAllocated -= 1;
   if (!masterPerk.ranksTaken) {
     masterPerk.levelTaken = 0;
-    document.getElementById(`${selectedPerk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
+    getElementByIdWithPrefix(selectedPerk.name, ELEMENT_SUFFIXES.PERK_ROW).classList.remove("selected-perk"); // Remove highlight
   }
   selectedPerks.splice(selectedIndex, 1);
   updatePerks(masterPerk);
