@@ -103,8 +103,7 @@ function updateTotalAllocatedPointsForType(type) {
 
   POINT_ALLOCATION_DATA[type].allocated = totalAllocated;
 
-  const allocatedPointsDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.POINTS_COUNTER);
-  allocatedPointsDisplay.innerHTML = POINT_ALLOCATION_DATA[type].allocated;
+  updatePointsCounters(type);
 }
 
 /**
@@ -217,7 +216,7 @@ function handleLevelInput(type) {
   if (type === "level") {
     // Use the extracted function to calculate skill points
     POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
-    updateTotalAllocatablePointsDisplay("skill");
+    updatePointsCounters("skill");
 
     SKILL_DATA.forEach((skill) => {
       updateButtonStates(skill, "skill");
@@ -276,13 +275,7 @@ function updateCheckboxLimit(attribute, type) {
   } else {
     POINT_ALLOCATION_DATA[type].maxChecked = attribute.total;
   }
-  updateTotalAllocatableCheckboxDisplay("special");
-  const checkboxCounter = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_COUNTER);
-  if (POINT_ALLOCATION_DATA[type].maxChecked < POINT_ALLOCATION_DATA[type].checked) {
-    checkboxCounter.classList.add("points-exceeded");
-  } else {
-    checkboxCounter.classList.remove("points-exceeded");
-  }
+  updateCheckboxCounters("special");
 }
 
 /**
@@ -293,8 +286,6 @@ function updateCheckboxLimit(attribute, type) {
  * @param {boolean} isChecked - Whether the checkbox is checked.
  */
 function handleAttributeCheckbox(attribute, type, isChecked) {
-  const totalCheckedDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_COUNTER);
-
   if (isChecked) {
     if (type === "special") {
       attribute.min += 1;
@@ -312,7 +303,7 @@ function handleAttributeCheckbox(attribute, type, isChecked) {
     }
     POINT_ALLOCATION_DATA[type].checked -= 1;
   }
-  totalCheckedDisplay.innerHTML = POINT_ALLOCATION_DATA[type].checked;
+  updateCheckboxCounters(type);
 }
 
 /**
@@ -594,21 +585,45 @@ function updateButtonStates(attribute, type) {
 }
 
 /**
- * Updates the total points allocatable counter for an attribute type.
+ * Updates the total points allocated and allocatable for an attribute type.
  *
  * @param {string} type
  */
-function updateTotalAllocatablePointsDisplay(type) {
+function updatePointsCounters(type) {
+  // Update allocated
+  const allocatedPointsDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.POINTS_COUNTER);
+  allocatedPointsDisplay.innerHTML = POINT_ALLOCATION_DATA[type].allocated;
+
+  // Change styling to notify user if they exceeded the maximum
+  if (POINT_ALLOCATION_DATA[type].maxAllocatable < POINT_ALLOCATION_DATA[type].allocated) {
+    allocatedPointsDisplay.classList.add("points-exceeded");
+  } else {
+    allocatedPointsDisplay.classList.remove("points-exceeded");
+  }
+
+  // Update allocatable
   const allocatablePointsDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.POINTS_TOTAL);
   allocatablePointsDisplay.innerHTML = POINT_ALLOCATION_DATA[type].maxAllocatable;
 }
 
 /**
- * Updates the total checkbox allocatable counter for an attribute type.
+ * Updates the total checkbox allocated and allocatable for an attribute type.
  *
  * @param {string} type
  */
-function updateTotalAllocatableCheckboxDisplay(type) {
+function updateCheckboxCounters(type) {
+  // Update allocated
+  const allocatedCheckboxDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_COUNTER);
+  allocatedCheckboxDisplay.innerHTML = POINT_ALLOCATION_DATA[type].checked;
+
+  // Change styling to notify user if they exceeded the maximum
+  if (POINT_ALLOCATION_DATA[type].maxChecked < POINT_ALLOCATION_DATA[type].checked) {
+    allocatedCheckboxDisplay.classList.add("points-exceeded");
+  } else {
+    allocatedCheckboxDisplay.classList.remove("points-exceeded");
+  }
+
+  // Update allocatable
   const allocatableCheckboxDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_TOTAL);
   allocatableCheckboxDisplay.innerHTML = POINT_ALLOCATION_DATA[type].maxChecked;
 }
@@ -821,7 +836,7 @@ function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct 
       POINT_ALLOCATION_DATA.skill.educatedAllocatable = 0;
     }
     POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
-    updateTotalAllocatablePointsDisplay("skill");
+    updatePointsCounters("skill");
   }
 
   // Handle the "Intense Training" perk
@@ -835,7 +850,7 @@ function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct 
       }
     }
 
-    updateTotalAllocatablePointsDisplay("special");
+    updatePointsCounters("special");
     SPECIAL_DATA.forEach((special) => {
       updateButtonStates(special, "special");
     });
@@ -849,7 +864,7 @@ function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct 
       POINT_ALLOCATION_DATA.skill.maxChecked -= 1;
     }
 
-    updateTotalAllocatableCheckboxDisplay("skill");
+    updateCheckboxCounters("skill");
     updateCheckboxStates("skill");
   }
 }
@@ -1062,7 +1077,7 @@ function updatePlanner(selectedPerks) {
         }
         updatePlanner(selectedPerks);
         POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
-        updateTotalAllocatablePointsDisplay("skill");
+        updatePointsCounters("skill");
       },
       onMove: function (evt) {
         const draggedItem = evt.dragged;
@@ -1125,11 +1140,11 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateSpecialBonusesForSkill(skill);
   });
 
-  updateTotalAllocatablePointsDisplay("level");
-  updateTotalAllocatablePointsDisplay("special");
-  updateTotalAllocatablePointsDisplay("skill");
-  updateTotalAllocatableCheckboxDisplay("special");
-  updateTotalAllocatableCheckboxDisplay("skill");
+  updatePointsCounters("level");
+  updatePointsCounters("special");
+  updatePointsCounters("skill");
+  updateCheckboxCounters("special");
+  updateCheckboxCounters("skill");
 
   renderNumericalAttributeRows(LEVEL_DATA, "level");
   renderNumericalAttributeRows(SPECIAL_DATA, "special");
