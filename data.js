@@ -1014,10 +1014,9 @@ const POINT_ALLOCATION_DATA = {
     maxChecked: 3,
     educatedAllocatable: 0,
   },
-};
-
-const PERK_ALLOCATION_DATA = {
-  perksAllocated: 0,
-  perksAllocatable: 12,
-  selectedPerks: [],
+  perk: {
+    allocated: 0,
+    maxAllocatable: 0,
+    selected: [],
+  },
 };

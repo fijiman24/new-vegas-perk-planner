@@ -228,6 +228,11 @@ function handleLevelInput(type) {
     PERK_DATA.forEach((perk) => {
       updateSelectedPerks(perk);
     });
+
+    // Update allocatable perks
+    const level = LEVEL_DATA[0].total;
+    POINT_ALLOCATION_DATA.perk.maxAllocatable = Math.floor(level / 2);
+    updatePointsCounters("perk");
   }
 }
 
@@ -705,7 +710,7 @@ function updateSelectedPerks(perk) {
   const allPerkItems = document.querySelectorAll(".planner-item");
   allPerkItems.forEach((perkItem) => {
     const perkId = parseInt(perkItem.getAttribute("id"));
-    const perk = PERK_ALLOCATION_DATA.selectedPerks.find((p) => p.id === perkId);
+    const perk = POINT_ALLOCATION_DATA.perk.selected.find((p) => p.id === perkId);
     if (perk) {
       updatePerkStyling(perkItem, perk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
     }
@@ -713,10 +718,10 @@ function updateSelectedPerks(perk) {
 
   // Update perk counter
   const perkPointsCounter = getElementByIdWithPrefix("perk", ELEMENT_SUFFIXES.POINTS_COUNTER);
-  perkPointsCounter.innerHTML = PERK_ALLOCATION_DATA.perksAllocated;
+  perkPointsCounter.innerHTML = POINT_ALLOCATION_DATA.perk.allocated;
 
   // Change styling to notify user that perk points were exceeded
-  if (PERK_ALLOCATION_DATA.perksAllocated > PERK_ALLOCATION_DATA.perksAllocatable) {
+  if (POINT_ALLOCATION_DATA.perk.allocated > POINT_ALLOCATION_DATA.perk.maxAllocatable) {
     perkPointsCounter.classList.add("points-exceeded");
   } else {
     perkPointsCounter.classList.remove("points-exceeded");
@@ -730,7 +735,7 @@ function updateSelectedPerks(perk) {
  */
 function updatePerks(perk) {
   updateSelectedPerks(perk);
-  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
+  updatePlanner(POINT_ALLOCATION_DATA.perk.selected);
 }
 
 /**
@@ -746,7 +751,7 @@ function handlePerkClick(perk) {
   //   return;
   // }
 
-  const selectedIndex = PERK_ALLOCATION_DATA.selectedPerks.findIndex((p) => p.name === perk.name);
+  const selectedIndex = POINT_ALLOCATION_DATA.perk.selected.findIndex((p) => p.name === perk.name);
 
   // Perk has not been selected yet
   if (selectedIndex === -1) {
@@ -760,7 +765,7 @@ function handlePerkClick(perk) {
     }
   }
   updateSelectedPerks(perk);
-  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
+  updatePlanner(POINT_ALLOCATION_DATA.perk.selected);
 }
 
 /**
@@ -774,9 +779,9 @@ function selectPerk(perk) {
   perk.levelTaken = perk.lvl;
 
   // We need to copy the item to make sure different ranks of same perk have different IDs
-  PERK_ALLOCATION_DATA.selectedPerks.push(JSON.parse(JSON.stringify(perk)));
-  PERK_ALLOCATION_DATA.selectedPerks[PERK_ALLOCATION_DATA.selectedPerks.length - 1].id = PERK_ALLOCATION_DATA.perksAllocated;
-  PERK_ALLOCATION_DATA.perksAllocated += 1;
+  POINT_ALLOCATION_DATA.perk.selected.push(JSON.parse(JSON.stringify(perk)));
+  POINT_ALLOCATION_DATA.perk.selected[POINT_ALLOCATION_DATA.perk.selected.length - 1].id = POINT_ALLOCATION_DATA.perk.allocated;
+  POINT_ALLOCATION_DATA.perk.allocated += 1;
   row.classList.add("selected-perk"); // Highlight the selected row
 
   handlePerkAttributeChange(perk, true);
@@ -788,12 +793,12 @@ function selectPerk(perk) {
  * @param {object} perk
  */
 function deselectPerk(perk) {
-  PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
+  POINT_ALLOCATION_DATA.perk.allocated -= perk.ranksTaken;
   perk.ranksTaken = 0;
   perk.levelTaken = 0;
 
   getElementByIdWithPrefix(perk.name, ELEMENT_SUFFIXES.PERK_ROW).classList.remove("selected-perk"); // Remove highlight
-  PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
+  POINT_ALLOCATION_DATA.perk.selected = POINT_ALLOCATION_DATA.perk.selected.filter((p) => p.name != perk.name);
   updatePerks(perk);
   handlePerkAttributeChange(perk, false);
 }
@@ -806,7 +811,7 @@ function deselectPerk(perk) {
  */
 function calculateEducatedPerkBonusSkillPoints() {
   const currentLevel = LEVEL_DATA[0].total;
-  const educatedPerk = PERK_ALLOCATION_DATA.selectedPerks.find((p) => p.name === "Educated");
+  const educatedPerk = POINT_ALLOCATION_DATA.perk.selected.find((p) => p.name === "Educated");
 
   if (educatedPerk != undefined && currentLevel > educatedPerk.levelTaken) {
     return (currentLevel - educatedPerk.levelTaken) * 2;
@@ -879,6 +884,7 @@ function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct 
  */
 function populatePerks(perkData, specialData, skillData, levelData) {
   const perkRows = document.getElementById("perk-rows");
+  updatePointsCounters("perk");
 
   // Clear existing perks from the container
   perkRows.innerHTML = "";
@@ -1098,12 +1104,12 @@ function updatePlanner(selectedPerks) {
  * @param {*} selectedPerk
  */
 function removePerkFromPlanner(selectedPerk) {
-  const selectedPerks = PERK_ALLOCATION_DATA.selectedPerks;
+  const selectedPerks = POINT_ALLOCATION_DATA.perk.selected;
   const selectedIndex = selectedPerks.findIndex((p) => p.id === selectedPerk.id);
   const masterPerk = PERK_DATA.find((p) => p.name === selectedPerk.name);
 
   masterPerk.ranksTaken -= 1;
-  PERK_ALLOCATION_DATA.perksAllocated -= 1;
+  POINT_ALLOCATION_DATA.perk.allocated -= 1;
   if (!masterPerk.ranksTaken) {
     masterPerk.levelTaken = 0;
     getElementByIdWithPrefix(selectedPerk.name, ELEMENT_SUFFIXES.PERK_ROW).classList.remove("selected-perk"); // Remove highlight
