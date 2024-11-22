@@ -245,6 +245,10 @@ button:disabled {
   background-color: var(--main-color);
 }
 
+.requirements-not-met.selected-perk {
+  background-color: var(--secondary-color);
+}
+
 .points-exceeded {
   color: red !important;
 }
@@ -283,4 +287,17 @@ button:disabled {
 
 .level-header {
   text-align: center;
+}
+
+.level-section {
+  border: 1px solid var(--main-color);
+  margin: 50px 0px;
+}
+
+.level-section:first-of-type {
+  margin-top: 10px;
+}
+
+.level-section:last-of-type {
+  margin-bottom: 10px;
 }

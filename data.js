@@ -1,4 +1,128 @@
-// Perks data (replace with your JSON data if needed)
+const SPECIAL_DATA = [
+  {
+    name: "Strength",
+    description:
+      "Strength is a measure of your raw physical power. It affects how much you can carry, the power of all melee attacks, and your effectiveness with many heavy weapons.",
+    skills: ["Melee Weapons"],
+  },
+  {
+    name: "Perception",
+    description:
+      "A high Perception grants a bonus to the Explosives, Lockpick and Energy Weapons, and determines when red compass markings appear (which indicate threats).",
+    skills: ["Energy Weapons", "Explosives", "Lockpick"],
+  },
+  {
+    name: "Endurance",
+    description:
+      "Endurance is a measure of your overall physical fitness. A high Endurance gives bonuses to health, environmental resistances, and the Survival and Unarmed skills.",
+    skills: ["Survival", "Unarmed"],
+  },
+  {
+    name: "Charisma",
+    description: "Having a high Charisma will improve people's disposition towards you, and give bonuses to both the Barter and Speech skills.",
+    skills: ["Barter", "Speech"],
+  },
+  {
+    name: "Intelligence",
+    description:
+      "Intelligence affects the Science, Repair and Medicine skills. The higher your Intelligence, the more Skill Points you'll be able to distribute when you level up.",
+    skills: ["Medicine", "Repair", "Science"],
+  },
+  {
+    name: "Agility",
+    description: "Agility affects your Guns and Sneak skills, the number of Action Points available for V.A.T.S., and weapon reload and holster speed.",
+    skills: ["Guns", "Sneak"],
+  },
+  {
+    name: "Luck",
+    description: "Raising your luck will raise all of your skills a little. Having a high Luck will also improve your critical chance with all weapons.",
+    skills: [
+      "Barter",
+      "Energy Weapons",
+      "Explosives",
+      "Guns",
+      "Lockpick",
+      "Medicine",
+      "Melee Weapons",
+      "Repair",
+      "Science",
+      "Sneak",
+      "Speech",
+      "Survival",
+      "Unarmed",
+    ],
+  },
+];
+
+const SKILL_DATA = [
+  {
+    name: "Barter",
+    description: "Proficiency at trading and haggling. Also used to negotiate better quest rewards or occasionally as a bribe-like alternative to Speech.",
+    special: "Charisma",
+  },
+  {
+    name: "Energy Weapons",
+    description: "Proficiency at using energy-based weapons.",
+    special: "Perception",
+  },
+  {
+    name: "Explosives",
+    description: "Proficiency at using explosive weaponry, disarming mines, and crafting explosives.",
+    special: "Perception",
+  },
+  {
+    name: "Guns",
+    description: "Proficiency at using weapons that fire standard ammunition.",
+    special: "Agility",
+  },
+  {
+    name: "Lockpick",
+    description: "Proficiency at picking locks.",
+    special: "Perception",
+  },
+  {
+    name: "Medicine",
+    description: "Proficiency at using medical tools, drugs, and for crafting Doctor's Bags.",
+    special: "Intelligence",
+  },
+  {
+    name: "Melee Weapons",
+    description: "Proficiency at using melee weapons.",
+    special: "Strength",
+  },
+  {
+    name: "Repair",
+    description: "Proficiency at repairing items and crafting items and ammunition.",
+    special: "Intelligence",
+  },
+  {
+    name: "Science",
+    description: "Proficiency at hacking terminals, recycling energy ammunition at workbenches, crafting chems, and many dialog checks.",
+    special: "Intelligence",
+  },
+  {
+    name: "Sneak",
+    description: "Proficiency at remaining undetected and stealing.",
+    special: "Agility",
+  },
+  {
+    name: "Speech",
+    description:
+      "Proficiency at persuading others. Also used to negotiate for better quest rewards and to talk your way out of combat, convincing people to give up vital information and succeeding in multiple Speech checks.",
+    special: "Charisma",
+  },
+  {
+    name: "Survival",
+    description: "Proficiency at cooking, making poisons, and crafting 'natural' equipment and consumables. Also yields increased benefits from food.",
+    special: "Endurance",
+  },
+  {
+    name: "Unarmed",
+    description: "Proficiency at unarmed fighting.",
+    special: "Endurance",
+  },
+];
+
 const PERK_DATA = [
   {
     name: "Black Widow/Lady Killer",
@@ -823,15 +947,72 @@ const PERK_DATA = [
   },
 ];
 
-// Map SPECIAL acronyms to full names
-const SPECIAL_MAP = {
-  IN: "Intelligence",
-  ST: "Strength",
-  PE: "Perception",
-  EN: "Endurance",
-  CH: "Charisma",
-  AG: "Agility",
-  LK: "Luck",
+const STAT_DATA = [
+  {
+    name: "Hit Points",
+    description: "Used to measure the health of a character. Should a character be reduced to 0 HP, the character dies",
+    special: "Endurance",
+    level: 0,
+    formula: (special, level) => 95 + special * 20 + level * 5,
+  },
+  {
+    name: "Action Points",
+    description: "Number of things a player can do during V.A.T.S. mode",
+    special: "Agility",
+    formula: (special) => 65 + 3 * special,
+  },
+  { name: "Critical Chance", description: "Chance to cause a critical hit", special: "Luck", formula: (special) => special * 0.01 },
+  {
+    name: "Melee Damage",
+    description: "Amount of bonus damage a character does with Melee Weapons",
+    special: "Strength",
+    formula: (special) => 0.5 * special,
+  },
+  {
+    name: "Carry Weight",
+    description: "How much can be carried before becoming overencumbered",
+    special: "Strength",
+    formula: (special) => 150 + special * 10,
+  },
+  { name: "Nerve", description: "Boosts the damage and Damage Threshold of each companion", special: "Charisma", formula: (special) => 0.05 * special },
+  {
+    name: "Skill Point Per Level",
+    description: "Can be allocated to skills to improve them",
+    special: "Intelligence",
+    formula: (special) => 10 + special / 2,
+  },
+];
+
+const LEVEL_DATA = [
+  {
+    name: "Level",
+    min: 1,
+    max: 50,
+    pointsAllocated: 0,
+    total: 1,
+  },
+];
+
+const POINT_ALLOCATION_DATA = {
+  level: {
+    allocated: 0,
+    maxEach: 50,
+    maxAllocatable: 49,
+  },
+  special: {
+    allocated: 0,
+    maxEach: 10,
+    maxAllocatable: 33,
+    checked: 0,
+    maxChecked: 1,
+  },
+  skill: {
+    allocated: 0,
+    maxEach: 100,
+    maxAllocatable: 0,
+    checked: 0,
+    maxChecked: 3,
+  },
 };
 
 const PERK_ALLOCATION_DATA = {
@@ -839,346 +1020,3 @@ const PERK_ALLOCATION_DATA = {
   perksAllocatable: 12,
   selectedPerks: [],
 };
-
-/**
- * Flags perk rows if their level, SPECIAL, and skill requirements are not met.
- *
- * @param {Array} perkData
- * @param {Array} specialData
- * @param {Array} skillData
- * @param {Array} levelData
- */
-function perkRequirementsMet(perk, specialData, skillData, levelData) {
-  const requirementsMet = perk.requirementsArray.every((req) => {
-    // Check for LVL requirements
-    if (req.startsWith("LVL")) {
-      const requiredLevel = parseInt(req.replace("LVL", "").trim());
-      const playerLevel = levelData[0].total; // Assuming levelData[0] stores current level
-      return playerLevel >= requiredLevel;
-    }
-
-    // Check for SPECIAL requirements
-    const specialMatch = req.match(/^(IN|ST|PE|EN|CH|AG|LK)(\d+)$/);
-    if (specialMatch) {
-      const specialName = SPECIAL_MAP[specialMatch[1]];
-      const requiredValue = parseInt(specialMatch[2]);
-      const special = specialData.find((s) => s.name === specialName);
-      return special && special.total >= requiredValue;
-    }
-
-    // Check for skill requirements
-    const skillMatch = req.match(/^([A-Za-z\s]+)(\d{2})$/); // Matches string followed by 2-digit number
-    if (skillMatch) {
-      const skillName = skillMatch[1].trim();
-      const requiredSkillValue = parseInt(skillMatch[2]);
-      skillData.forEach(skill => console.log(skill.name.replace(/\s/g, "")));
-      const skill = skillData.find((s) => s.name.replace(/\s/g, "") === skillName);
-      return skill && skill.total >= requiredSkillValue;
-    }
-
-    // Default to true for unrecognized requirements (karma, prerequisite perks, nonspecific SPECIAL values)
-    return true;
-  });
-
-  perk.requirementsMet = requirementsMet;
-  return perk.requirementsMet;
-}
-
-/**
- * Updates the perk point counter and shows/hides perk ranks taken.
- *
- * @param {*} row
- * @param {object} perk
- */
-function updateSelectedPerks(perk) {
-  const row = document.getElementById(`${perk.name}-perk-row`);
-  const perkPointsCounter = document.getElementById("perk-points-counter");
-  perkPointsCounter.innerHTML = PERK_ALLOCATION_DATA.perksAllocated;
-
-  if (PERK_ALLOCATION_DATA.perksAllocated > PERK_ALLOCATION_DATA.perksAllocatable) {
-    perkPointsCounter.classList.add("points-exceeded");
-  } else {
-    perkPointsCounter.classList.remove("points-exceeded");
-  }
-
-  const perkNameCell = row.querySelector("td:first-child"); // Assuming name is in the first cell
-  if (perk.ranksTaken > 0) {
-    perkNameCell.textContent = `${perk.name} (${perk.ranksTaken}/${perk.maxRank})`;
-  } else {
-    perkNameCell.textContent = perk.name; // Restore original name
-  }
-}
-
-function updatePerks(perk) {
-  updateSelectedPerks(perk);
-  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
-}
-
-function handlePerkClick(perk) {
-  // Prevent selection if requirements are not met
-  if (!perk.requirementsMet) {
-    return;
-  }
-
-  const selectedIndex = PERK_ALLOCATION_DATA.selectedPerks.findIndex((p) => p.name === perk.name);
-
-  // Perk has not been selected yet
-  if (selectedIndex === -1) {
-    selectPerk(perk);
-  } else {
-    if (perk.ranksTaken < perk.maxRank) {
-      selectPerk(perk);
-    } else {
-      // Remove perk if already selected
-      PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
-      perk.ranksTaken = 0;
-      perk.levelTaken = 0;
-      document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
-      PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
-      updatePerks(perk);
-    }
-  }
-  updateSelectedPerks(perk);
-  updatePlanner(PERK_ALLOCATION_DATA.selectedPerks);
-}
-
-function selectPerk(perk) {
-  const row = document.getElementById(`${perk.name}-perk-row`);
-  perk.ranksTaken += 1;
-  perk.levelTaken = perk.lvl;
-
-  // We need to copy the item to make sure different ranks of same perk have different IDs
-  PERK_ALLOCATION_DATA.selectedPerks.push(JSON.parse(JSON.stringify(perk)));
-  PERK_ALLOCATION_DATA.selectedPerks[PERK_ALLOCATION_DATA.selectedPerks.length - 1].id = PERK_ALLOCATION_DATA.perksAllocated;
-  PERK_ALLOCATION_DATA.perksAllocated += 1;
-
-  row.classList.add("selected-perk"); // Highlight the selected row
-}
-
-/**
- * Renders rows for perks.
- *
- * @param {object} perkData
- * @param {object} specialData
- * @param {object} skillData
- * @param {object} levelData
- */
-function populatePerks(perkData, specialData, skillData, levelData) {
-  const perkRows = document.getElementById("perk-rows");
-
-  // Preprocess perks: Split requirements into arrays and add a numeric LVL field for sorting
-  perkData.forEach((perk) => {
-    const requirementParts = perk.requirements.split(",").map((req) => req.trim());
-    perk.requirementsArray = requirementParts;
-    const lvlMatch = requirementParts.find((req) => req.startsWith("LVL"));
-    perk.lvl = lvlMatch ? parseInt(lvlMatch.replace("LVL", "").trim()) : 0;
-  });
-
-  // Sort perks: First by LVL, then alphabetically by name
-  perkData.sort((a, b) => {
-    if (a.lvl !== b.lvl) {
-      return a.lvl - b.lvl; // Sort by LVL numerically
-    }
-    return a.name.localeCompare(b.name); // Sort alphabetically by name
-  });
-
-  // Create a table container
-  const tableContainer = document.createElement("div");
-  tableContainer.className = "scrollable-table-container";
-
-  // Create the table
-  const table = document.createElement("table");
-  table.className = "scrollable-table";
-
-  // Create table header
-  const thead = document.createElement("thead");
-  thead.className = "scrollable-table-header-container";
-
-  const headerRow = document.createElement("tr");
-  const displayedPerkAttributes = ["Name", "Description", "Requirements"];
-  displayedPerkAttributes.forEach((header) => {
-    const th = document.createElement("th");
-    th.className = "scrollable-table-header";
-    th.textContent = header;
-    headerRow.appendChild(th);
-  });
-
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
-  // Create table body
-  const tbody = document.createElement("tbody");
-
-  perkData.forEach((perk) => {
-    const row = document.createElement("tr");
-    row.className = "scrollable-table-row";
-    row.id = `${perk.name}-perk-row`;
-
-    // Disable perk rows where requirements are not met (all perks initially)
-    if (!perkRequirementsMet(perk, specialData, skillData, levelData)) {
-      row.classList.add("requirements-not-met");
-    } else {
-      row.classList.remove("requirements-not-met");
-    }
-
-    // Create table data
-    displayedPerkAttributes.forEach((key) => {
-      const td = document.createElement("td");
-      td.className = "scrollable-table-data";
-      if (key === "Requirements") {
-        td.textContent = perk.requirementsArray.join(", "); // Display requirements as a comma-separated string
-      } else {
-        td.textContent = perk[key.toLowerCase()]; // Use key.toLowerCase() to match JSON keys
-      }
-      row.appendChild(td);
-    });
-
-    // Attach click handler
-    row.addEventListener("click", () => handlePerkClick(perk));
-
-    tbody.appendChild(row);
-  });
-
-  table.appendChild(tbody);
-  tableContainer.appendChild(table);
-
-  // Append the table container to the perkRows div
-  perkRows.appendChild(tableContainer);
-}
-
-function renderPlanner() {
-  const plannerRows = document.getElementById("planner-rows");
-  plannerRows.innerHTML = ""; // Clear previous content
-
-  // Generate HTML content for all even levels from 1 to 50
-  for (let level = 2; level <= 50; level += 2) {
-    // Create a section for each level
-    const levelSection = document.createElement("div");
-    levelSection.classList.add("level-section");
-    levelSection.setAttribute("section-level", level);
-
-    // Add a header for the level
-    const levelHeader = document.createElement("h2");
-    levelHeader.textContent = `-- Level ${level} --`;
-    levelHeader.classList.add("level-header");
-
-    // Append header and perks list
-    levelSection.appendChild(levelHeader);
-
-    // Empty perks list for this level
-    const perksList = document.createElement("ul");
-    perksList.classList.add("planner-list");
-    levelSection.appendChild(perksList);
-
-    // Append to the planner rows
-    plannerRows.appendChild(levelSection);
-  }
-}
-
-// Function to populate the planner
-function updatePlanner(selectedPerks) {
-  renderPlanner(); // Render the level sections first
-
-  const plannerRows = document.getElementById("planner-rows");
-  const perksByLevel = selectedPerks.reduce((acc, perk) => {
-    acc[perk.levelTaken] = acc[perk.levelTaken] || [];
-    acc[perk.levelTaken].push(perk);
-    return acc;
-  }, {});
-
-  // Add perks to the appropriate sections
-  for (let level = 2; level <= 50; level += 2) {
-    const levelSection = plannerRows.querySelector(`[section-level="${level}"]`);
-    const perksList = levelSection.querySelector(".planner-list");
-
-    if (perksByLevel[level]) {
-      perksByLevel[level].forEach((selectedPerk) => {
-        const perkItem = document.createElement("li");
-        perkItem.classList.add("planner-item");
-        perkItem.setAttribute("id", selectedPerk.id);
-        perkItem.setAttribute("name", selectedPerk.name);
-        perkItem.setAttribute("minLevel", selectedPerk.lvl);
-        perkItem.setAttribute("levelTaken", selectedPerk.levelTaken);
-
-        // Perk content and delete button
-        perkItem.innerHTML = `
-          <button class="remove-perk">x</button>
-          <div class="perk-details">
-            <p>${selectedPerk.name}: ${selectedPerk.description}</p>
-            <p>Requirements: ${selectedPerk.requirementsArray}</p>
-          </div>
-        `;
-
-        // Grey out perk rows where requirements are not met
-        if (!perkRequirementsMet(selectedPerk, specialData, skillData, levelData)) {
-          perkItem.classList.add("requirements-not-met");
-        } else {
-          perkItem.classList.remove("requirements-not-met");
-        }
-
-        // Remove perk functionality
-        perkItem.querySelector(".remove-perk").addEventListener("click", () => {
-          removePerkFromPlanner(selectedPerk);
-        });
-
-        perksList.appendChild(perkItem);
-      });
-    }
-
-    // Initialize Sortable.js with onEnd and onMove events
-    new Sortable(perksList, {
-      group: { name: "shared" },
-      animation: 150,
-      onEnd: function (evt) {
-        const draggedItem = evt.item; // The dragged list item
-        const newLevel = evt.to.closest(".level-section").getAttribute("section-level"); // New level header
-        const perkId = parseInt(draggedItem.getAttribute("id")); // Perk ID from the item
-        const perk = selectedPerks.find((p) => parseInt(p.id) === perkId);
-        if (perk) {
-          perk.levelTaken = parseInt(newLevel);
-        }
-        updatePlanner(selectedPerks);
-      },
-      onMove: function (evt) {
-        const draggedItem = evt.dragged;
-        const targetList = evt.to;
-        const targetLevel = parseInt(targetList.closest(".level-section").getAttribute("section-level"), 10);
-        const perkId = parseInt(draggedItem.getAttribute("id")); // Perk ID from the item
-        const perk = selectedPerks.find((p) => p.id === perkId);
-
-        // Allow move only if the target level is valid
-        if (perk && targetLevel < perk.lvl) {
-          return false;
-        }
-        return true;
-      },
-    });
-  }
-}
-
-function removePerkFromPlanner(selectedPerk) {
-  const selectedPerks = PERK_ALLOCATION_DATA.selectedPerks;
-  const selectedIndex = selectedPerks.findIndex((p) => p.id === selectedPerk.id);
-  const masterPerk = PERK_DATA.find((p) => p.name === selectedPerk.name);
-
-  masterPerk.ranksTaken -= 1;
-  PERK_ALLOCATION_DATA.perksAllocated -= 1;
-  if (!masterPerk.ranksTaken) {
-    masterPerk.levelTaken = 0;
-    document.getElementById(`${selectedPerk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
-  }
-  selectedPerks.splice(selectedIndex, 1);
-  updatePerks(masterPerk);
-}
-
-// Populate perks on DOM content loaded
-document.addEventListener("DOMContentLoaded", () => {
-  PERK_DATA.forEach((perk) => {
-    perk.requirementsMet = true;
-    perk.ranksTaken = 0;
-    perk.levelTaken = 0;
-  });
-
-  populatePerks(PERK_DATA, specialData, skillData, levelData);
-  renderPlanner();
-});
