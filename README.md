@@ -21,6 +21,7 @@
 1. A "perk" planner, not a full build planner. No ability for weapons, armor, food, etc.
 2. Only "regular" perks shown. That is, perks gained through levelling. Companion and challenge perks are not included.
 3. Updates to base stats from perks were NOT included (e.g., strong back, finesse, action boy, life giver)
+4. Does not account for certain perk requirements (e.g., S.P.E.C.I.A.L. attributes between, or less than a value; prerequisite perks; karma)
 
 Made using HTML, CSS, and Javascript. Only external library used was Sortable.js for drag and drop functionality in planner.
 
