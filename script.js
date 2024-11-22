@@ -419,6 +419,7 @@ function renderNumericalAttributeRows(data, type) {
     handleLevelInput(type);
     handleSpecialInput(attribute, type);
     updateCheckboxStates(type);
+    updatePerkRequirementsMetStyling();
   };
 
   data.forEach((attribute) => {
@@ -629,7 +630,6 @@ function perkRequirementsMet(perk, specialData, skillData, levelData) {
     if (skillMatch) {
       const skillName = skillMatch[1].trim();
       const requiredSkillValue = parseInt(skillMatch[2]);
-      skillData.forEach((skill) => console.log(skill.name.replace(/\s/g, "")));
       const skill = skillData.find((s) => s.name.replace(/\s/g, "") === skillName);
       return skill && skill.total >= requiredSkillValue;
     }
