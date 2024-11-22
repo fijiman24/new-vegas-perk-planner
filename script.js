@@ -1046,8 +1046,8 @@ function updatePlanner(selectedPerks) {
         perkItem.innerHTML = `
           <button class="remove-perk">x</button>
           <div class="perk-details">
-            <p>${selectedPerk.name}: ${selectedPerk.description}</p>
-            <p>Requirements: ${selectedPerk.requirementsArray}</p>
+            <p><strong>${selectedPerk.name}</strong>: ${selectedPerk.description}</p>
+            <p><strong>Requirements</strong>: ${selectedPerk.requirementsArray}</p>
           </div>
         `;
 
