@@ -1044,8 +1044,8 @@ function updatePlanner(selectedPerks) {
 
         // Perk content and delete button
         perkItem.innerHTML = `
+          <button class="remove-perk"></button>
           <p><strong>${selectedPerk.name}</strong></p>
-          <button class="remove-perk">x</button>
         `;
 
         // Update styling based on requirements
