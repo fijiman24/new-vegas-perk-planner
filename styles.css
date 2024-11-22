@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Monofonto";
-  src: url("../fonts/monofonto\ rg.otf") format("truetype");
+  src: url("../fonts/monofonto\ rg.otf") format("opentype");
 }
 
 :root {
