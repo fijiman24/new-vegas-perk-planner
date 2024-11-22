@@ -1012,6 +1012,7 @@ const POINT_ALLOCATION_DATA = {
     maxAllocatable: 0,
     checked: 0,
     maxChecked: 3,
+    educatedAllocatable: 0,
   },
 };
 

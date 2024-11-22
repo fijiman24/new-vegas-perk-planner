@@ -5,6 +5,7 @@ const ELEMENT_SUFFIXES = {
   POINTS_TOTAL: "points-total",
   CHECKBOX: "checkbox",
   CHECKBOX_COUNTER: "checkbox-counter",
+  CHECKBOX_TOTAL: "checkbox-total",
   VALUE: "value",
   ROWS: "rows",
   DECREMENT: "decrement",
@@ -187,6 +188,25 @@ function calculateSpecialBonusesForSkill(skill) {
 }
 
 /**
+ * Calculates the maximum allocatable skill points based on level, Intelligence, and the Educated perk.
+ *
+ * @param {number} level - The current level of the player.
+ * @param {number} intelligence - The total Intelligence of the player.
+ * @param {number} educatedBonus - The bonus skill points from the "Educated" perk.
+ * @returns {number} - The maximum allocatable skill points.
+ */
+function calculateMaxAllocatableSkillPoints() {
+  const level = LEVEL_DATA[0].total;
+  const intelligence = SPECIAL_DATA.find((special) => special.name === "Intelligence").total;
+  const educatedBonus = calculateEducatedPerkBonusSkillPoints();
+  if (level > 1) {
+    const baseSkillPoints = Math.floor(level * (intelligence * 0.5 + 10)) - 10;
+    return baseSkillPoints + educatedBonus;
+  }
+  return 0;
+}
+
+/**
  * Calculates allocatable skill points for player's current level.
  * Formula is (Intelligence x 0.5) + 10 skill points per level, with the half being turned into a full point every even level.
  *
@@ -194,19 +214,9 @@ function calculateSpecialBonusesForSkill(skill) {
  */
 function handleLevelInput(type) {
   if (type === "level") {
-    const level = LEVEL_DATA[0].total;
-    if (level > 1) {
-      const intelligence = SPECIAL_DATA.find((special) => special.name === "Intelligence");
-
-      // Minus 10 cuz no skill point allocation level 1
-      const skillPointsForLevel = Math.floor(level * (intelligence.total * 0.5 + 10)) - 10;
-      POINT_ALLOCATION_DATA.skill.maxAllocatable = skillPointsForLevel;
-    } else {
-      POINT_ALLOCATION_DATA.skill.maxAllocatable = 0;
-    }
-
-    const totalAllocatableSkillPointDisplay = getElementByIdWithPrefix("skill", ELEMENT_SUFFIXES.POINTS_TOTAL);
-    totalAllocatableSkillPointDisplay.innerHTML = POINT_ALLOCATION_DATA.skill.maxAllocatable;
+    // Use the extracted function to calculate skill points
+    POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
+    updateTotalAllocatablePointsDisplay("skill");
 
     SKILL_DATA.forEach((skill) => {
       updateButtonStates(skill, "skill");
@@ -265,7 +275,7 @@ function updateCheckboxLimit(attribute, type) {
   } else {
     POINT_ALLOCATION_DATA[type].maxChecked = attribute.total;
   }
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA[type].maxChecked, "implant");
+  updateTotalAllocatableCheckboxDisplay("special");
   const checkboxCounter = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_COUNTER);
   if (POINT_ALLOCATION_DATA[type].maxChecked < POINT_ALLOCATION_DATA[type].checked) {
     checkboxCounter.classList.add("points-exceeded");
@@ -582,9 +592,24 @@ function updateButtonStates(attribute, type) {
   triggerMouseUpOnDisabledButton(decrementButton);
 }
 
-function updateTotalAllocatableDisplay(countable, type) {
+/**
+ * Updates the total points allocatable counter for an attribute type.
+ *
+ * @param {string} type
+ */
+function updateTotalAllocatablePointsDisplay(type) {
   const allocatablePointsDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.POINTS_TOTAL);
-  allocatablePointsDisplay.innerHTML = countable;
+  allocatablePointsDisplay.innerHTML = POINT_ALLOCATION_DATA[type].maxAllocatable;
+}
+
+/**
+ * Updates the total checkbox allocatable counter for an attribute type.
+ *
+ * @param {string} type
+ */
+function updateTotalAllocatableCheckboxDisplay(type) {
+  const allocatableCheckboxDisplay = getElementByIdWithPrefix(type, ELEMENT_SUFFIXES.CHECKBOX_TOTAL);
+  allocatableCheckboxDisplay.innerHTML = POINT_ALLOCATION_DATA[type].maxChecked;
 }
 
 // #### PERKS AND PLANNER
@@ -714,13 +739,8 @@ function handlePerkClick(perk) {
     if (perk.ranksTaken < perk.maxRank) {
       selectPerk(perk);
     } else {
-      // Remove perk if already selected
-      PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
-      perk.ranksTaken = 0;
-      perk.levelTaken = 0;
-      document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
-      PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
-      updatePerks(perk);
+      // Remove perk if already selected/at max ranks
+      deselectPerk(perk);
     }
   }
   updateSelectedPerks(perk);
@@ -741,8 +761,95 @@ function selectPerk(perk) {
   PERK_ALLOCATION_DATA.selectedPerks.push(JSON.parse(JSON.stringify(perk)));
   PERK_ALLOCATION_DATA.selectedPerks[PERK_ALLOCATION_DATA.selectedPerks.length - 1].id = PERK_ALLOCATION_DATA.perksAllocated;
   PERK_ALLOCATION_DATA.perksAllocated += 1;
-
   row.classList.add("selected-perk"); // Highlight the selected row
+
+  handlePerkAttributeChange(perk, true);
+}
+
+/**
+ * Deselects a perk in the Perks section.
+ *
+ * @param {object} perk
+ */
+function deselectPerk(perk) {
+  PERK_ALLOCATION_DATA.perksAllocated -= perk.ranksTaken;
+  perk.ranksTaken = 0;
+  perk.levelTaken = 0;
+  document.getElementById(`${perk.name}-perk-row`).classList.remove("selected-perk"); // Remove highlight
+  PERK_ALLOCATION_DATA.selectedPerks = PERK_ALLOCATION_DATA.selectedPerks.filter((p) => p.name != perk.name);
+  updatePerks(perk);
+  handlePerkAttributeChange(perk, false);
+}
+
+/**
+ * Calculate the bonus to allocatable skill points given by the Educated perk at the current level.
+ * Considers what level the perk was taken at.
+ * 
+ * @returns {number} - the bonus to allocatable skill points given by the Educated perk  
+ */
+function calculateEducatedPerkBonusSkillPoints() {
+  const currentLevel = LEVEL_DATA[0].total;
+  const educatedPerk = PERK_ALLOCATION_DATA.selectedPerks.find((p) => p.name === "Educated");
+
+  if (educatedPerk != undefined && currentLevel > educatedPerk.levelTaken) {
+    return (currentLevel - educatedPerk.levelTaken) * 2;
+  } else {
+    return 0;
+  }
+}
+
+/**
+ * Handle the selection and deselection of perks that affect the other attributes.
+ * 1. Educated: 2 additional skill points per level up
+ * 2. Intense Training: Additional SPECIAL allocation point
+ * 3. Tag!: Additional taggable skill
+ * 
+ * Does not consider perks that affect base stats.
+ * 
+ * @param {object} perk
+ * @param {boolean} selected - true if the perk was selected, else false 
+ * @param {number} intenseTrainingRanksToDeduct - other value is 1, when individual perk rank is removed from the planner
+ */
+function handlePerkAttributeChange(perk, selected, intenseTrainingRanksToDeduct = 10) {
+  // Handle the "Educated" perk
+  if (perk.name === "Educated") {
+    if (selected) {
+      POINT_ALLOCATION_DATA.skill.educatedAllocatable = calculateEducatedPerkBonusSkillPoints();
+    } else {
+      POINT_ALLOCATION_DATA.skill.educatedAllocatable = 0;
+    }
+    POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
+    updateTotalAllocatablePointsDisplay("skill");
+  }
+
+  // Handle the "Intense Training" perk
+  if (perk.name === "Intense Training") {
+    if (selected) {
+      perk.RanksTaken = (perk.RanksTaken || 0) + 1;
+      POINT_ALLOCATION_DATA.special.maxAllocatable += 1;
+    } else {
+      if (perk.RanksTaken > 0) {
+        POINT_ALLOCATION_DATA.special.maxAllocatable -= intenseTrainingRanksToDeduct;
+      }
+    }
+
+    updateTotalAllocatablePointsDisplay("special");
+    SPECIAL_DATA.forEach((special) => {
+      updateButtonStates(special, "special");
+    });
+  }
+
+  // Handle the "Tag!" perk
+  if (perk.name === "Tag!") {
+    if (selected) {
+      POINT_ALLOCATION_DATA.skill.maxChecked += 1;
+    } else {
+      POINT_ALLOCATION_DATA.skill.maxChecked -= 1;
+    }
+
+    updateTotalAllocatableCheckboxDisplay("skill");
+    updateCheckboxStates("skill");
+  }
 }
 
 /**
@@ -952,6 +1059,8 @@ function updatePlanner(selectedPerks) {
           perk.levelTaken = parseInt(newLevel);
         }
         updatePlanner(selectedPerks);
+        POINT_ALLOCATION_DATA.skill.maxAllocatable = calculateMaxAllocatableSkillPoints();
+        updateTotalAllocatablePointsDisplay("skill");
       },
       onMove: function (evt) {
         const draggedItem = evt.dragged;
@@ -987,6 +1096,7 @@ function removePerkFromPlanner(selectedPerk) {
   }
   selectedPerks.splice(selectedIndex, 1);
   updatePerks(masterPerk);
+  handlePerkAttributeChange(masterPerk, false, (intenseTrainingRanks = 1));
 }
 
 // #### INITIALIZE APP
@@ -1013,11 +1123,11 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateSpecialBonusesForSkill(skill);
   });
 
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA.level.maxAllocatable, "level");
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA.special.maxAllocatable, "special");
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA.skill.maxAllocatable, "skill");
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA.special.maxChecked, "implant");
-  updateTotalAllocatableDisplay(POINT_ALLOCATION_DATA.skill.maxChecked, "tag");
+  updateTotalAllocatablePointsDisplay("level");
+  updateTotalAllocatablePointsDisplay("special");
+  updateTotalAllocatablePointsDisplay("skill");
+  updateTotalAllocatableCheckboxDisplay("special");
+  updateTotalAllocatableCheckboxDisplay("skill");
 
   renderNumericalAttributeRows(LEVEL_DATA, "level");
   renderNumericalAttributeRows(SPECIAL_DATA, "special");
