@@ -979,7 +979,7 @@ function renderPlanner() {
     levelSection.setAttribute("section-level", level);
 
     // Add a header for the level
-    const levelHeader = document.createElement("h2");
+    const levelHeader = document.createElement("h3");
     levelHeader.textContent = `-- Level ${level} --`;
     levelHeader.classList.add("level-header");
 
@@ -1044,11 +1044,8 @@ function updatePlanner(selectedPerks) {
 
         // Perk content and delete button
         perkItem.innerHTML = `
+          <p><strong>${selectedPerk.name}</strong></p>
           <button class="remove-perk">x</button>
-          <div class="perk-details">
-            <p><strong>${selectedPerk.name}</strong>: ${selectedPerk.description}</p>
-            <p><strong>Requirements</strong>: ${selectedPerk.requirementsArray}</p>
-          </div>
         `;
 
         // Update styling based on requirements
