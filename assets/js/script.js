@@ -1060,8 +1060,8 @@ function updatePlanner(selectedPerks) {
         updatePerkStyling(perkItem, selectedPerk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
 
         // Remove perk functionality
-        perkItem.querySelector(".remove-perk").addEventListener("mouseover", () => {
-          removePerkFromPlanner(selectedPerk);
+        perkItem.querySelector(".remove-perk").addEventListener("click", () => {
+          deselectPerk(selectedPerk);
         });
 
         perksList.appendChild(perkItem);
