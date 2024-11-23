@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Monofonto";
-  src: url("/fonts/monofonto-rg.otf") format("opentype");
+  src: url("../fonts/monofonto-rg.otf") format("opentype");
 }
 
 :root {
@@ -321,18 +321,18 @@ button:disabled {
   cursor: grab;
   margin: 10px;
   margin-top: -10px;
-  position: relative;
-  z-index: -1;
 }
 
 .remove-perk {
-  width: 25px;
-  height: 25px;
+  width: 15px;
+  height: 15px;
   border: 1px solid var(--main-color);
   cursor: pointer;
   color: var(--background-color);
   background-color: var(--main-color);
   margin-right: 20px;
+  position: relative;
+  z-index: 10; /* For button to be clickable on mobile */
 }
 
 .remove-perk:hover {
