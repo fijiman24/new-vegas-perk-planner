@@ -439,7 +439,6 @@ function renderNumericalAttributeRows(data, type) {
       </div>
       <div class="input-controls">
           <button class="decrement ${type}-decrement-button" id="${attribute.name}-decrement" disabled>
-              -
           </button>
           <input type="number" class="${type}-input" id="${attribute.name}-input"
               value="${attribute.total}" min="${attribute.min}"
