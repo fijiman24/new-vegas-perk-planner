@@ -11,6 +11,7 @@ const ELEMENT_SUFFIXES = {
   DECREMENT: "decrement",
   TOTAL: "total",
   PERK_ROW: "perk-row",
+  REMOVE_PLANNER_ITEM_BUTTON: "remove-planner-item-button",
 };
 
 const MIN_POINTS_PER_SPECIAL = 1;
@@ -1041,30 +1042,35 @@ function updatePlanner(selectedPerks) {
 
     if (perksByLevel[level]) {
       perksByLevel[level].forEach((selectedPerk) => {
-        const perkItem = document.createElement("li");
-        perkItem.classList.add("planner-item");
-        perkItem.setAttribute("id", selectedPerk.id);
-        perkItem.setAttribute("name", selectedPerk.name);
-        perkItem.setAttribute("minLevel", selectedPerk.lvl);
-        perkItem.setAttribute("levelTaken", selectedPerk.levelTaken);
+        // Button to remove perk from planner
+        // Must be outside list item to be clickable on mobile, otherwise
+        // dragging functions override it
+        const removePlannerItemButton = document.createElement("button");
+        removePlannerItemButton.classList.add("remove-planner-item-button");
+        removePlannerItemButton.id = `${selectedPerk.name}-remove-planner-item-button`;
 
-        const removePerk = document.createElement("button");
-        removePerk.classList.add("remove-perk");
-        perkItem.appendChild(removePerk);
-
-        const sortable = document.createElement("p");
-        sortable.innerHTML = `${selectedPerk.name}`;
-        perkItem.appendChild(sortable);
-
-        // Update styling based on requirements
-        updatePerkStyling(perkItem, selectedPerk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
-
-        // Remove perk functionality
-        perkItem.querySelector(".remove-perk").addEventListener("click", () => {
-          deselectPerk(selectedPerk);
+        removePlannerItemButton.addEventListener("click", () => {
+          removePerkFromPlanner(selectedPerk);
         });
 
-        perksList.appendChild(perkItem);
+        perksList.appendChild(removePlannerItemButton);
+
+        // Planner list item
+        const plannerListItem = document.createElement("li");
+        plannerListItem.classList.add("planner-item");
+        plannerListItem.setAttribute("id", selectedPerk.id);
+        plannerListItem.setAttribute("name", selectedPerk.name);
+        plannerListItem.setAttribute("minLevel", selectedPerk.lvl);
+        plannerListItem.setAttribute("levelTaken", selectedPerk.levelTaken);
+
+        const plannerPerkName = document.createElement("p");
+        plannerPerkName.innerHTML = `${selectedPerk.name}`;
+
+        plannerListItem.appendChild(plannerPerkName);
+        perksList.appendChild(plannerListItem);
+
+        // Update styling based on requirements
+        updatePerkStyling(plannerListItem, selectedPerk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
       });
     }
 
@@ -1089,7 +1095,14 @@ function updatePlanner(selectedPerks) {
         const targetList = evt.to;
         const targetLevel = parseInt(targetList.closest(".level-section").getAttribute("section-level"), 10);
         const perkId = parseInt(draggedItem.getAttribute("id"));
+        const perkName = draggedItem.getAttribute("name");
         const perk = selectedPerks.find((p) => p.id === perkId);
+
+        // Hide the Remove Perk button for the dragged item
+        const removePerkButton = getElementByIdWithPrefix(perkName, ELEMENT_SUFFIXES.REMOVE_PLANNER_ITEM_BUTTON);
+        if (removePerkButton) {
+          removePerkButton.remove();
+        }
 
         if (perk && targetLevel < perk.lvl) {
           return false;
