@@ -439,6 +439,7 @@ function renderNumericalAttributeRows(data, type) {
       </div>
       <div class="input-controls">
           <button class="decrement ${type}-decrement-button" id="${attribute.name}-decrement" disabled>
+              -
           </button>
           <input type="number" class="${type}-input" id="${attribute.name}-input"
               value="${attribute.total}" min="${attribute.min}"
@@ -1047,17 +1048,19 @@ function updatePlanner(selectedPerks) {
         perkItem.setAttribute("minLevel", selectedPerk.lvl);
         perkItem.setAttribute("levelTaken", selectedPerk.levelTaken);
 
-        // Perk content and delete button
-        perkItem.innerHTML = `
-          <button class="remove-perk"></button>
-          <p><strong>${selectedPerk.name}</strong></p>
-        `;
+        const removePerk = document.createElement("button");
+        removePerk.classList.add("remove-perk");
+        perkItem.appendChild(removePerk);
+
+        const sortable = document.createElement("p");
+        sortable.innerHTML = `${selectedPerk.name}`;
+        perkItem.appendChild(sortable);
 
         // Update styling based on requirements
         updatePerkStyling(perkItem, selectedPerk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
 
         // Remove perk functionality
-        perkItem.querySelector(".remove-perk").addEventListener("click", () => {
+        perkItem.querySelector(".remove-perk").addEventListener("mouseover", () => {
           removePerkFromPlanner(selectedPerk);
         });
 
