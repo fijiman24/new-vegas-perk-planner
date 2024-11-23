@@ -1,7 +1,6 @@
 @font-face {
   font-family: "Monofonto";
-  src: url("https://fijiman24.github.io/fonts/monofonto-rg.woff2") format("woff2"),
-       url("https://fijiman24.github.io/fonts/monofonto-rg.woff") format("woff");
+  src: url("/fonts/monofonto-rg.otf") format("opentype");
 }
 
 :root {
@@ -322,11 +321,13 @@ button:disabled {
   cursor: grab;
   margin: 10px;
   margin-top: -10px;
+  position: relative;
+  z-index: -1;
 }
 
 .remove-perk {
-  width: 15px;
-  height: 15px;
+  width: 25px;
+  height: 25px;
   border: 1px solid var(--main-color);
   cursor: pointer;
   color: var(--background-color);
@@ -344,7 +345,7 @@ button:disabled {
 
 .level-header {
   text-align: center;
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 .level-section {
