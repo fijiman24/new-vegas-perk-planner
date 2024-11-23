@@ -21,7 +21,7 @@ body {
   align-items: center;
 
   /* Make text unselectable to avoid unwanted highlighting */
-  user-select: none;
+  /* user-select: none; */
 }
 
 main {
@@ -312,14 +312,15 @@ button:disabled {
   list-style-type: none;
   padding: 0;
   margin: 0;
-    display: flex;
+  display: flex;
   flex-direction: column;
 }
 
 .planner-item {
+  position: relative;
   cursor: grab;
   margin-left: 50px;
-  margin-top: -32px;
+  margin-top: -34px;
 }
 
 .remove-planner-item-button {
@@ -348,4 +349,21 @@ button:disabled {
 .level-section {
   border: 1px solid var(--main-color);
   margin: 5px 0px;
+}
+
+.popover {
+  position: absolute;
+  background-color: var(--background-color);
+  border: 1px solid var(--main-color);
+  max-width: 300px;
+  height: fit-content;
+  padding: 10px;
+  display: none;
+  z-index: 100;
+}
+
+.popover-info-icon {
+  margin-left: 5px;
+  text-decoration: underline;
+  cursor: pointer;
 }

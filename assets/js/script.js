@@ -226,9 +226,6 @@ function handleLevelInput(type) {
     // Update health points
     const endurance = SPECIAL_DATA.find((special) => special.name === "Endurance");
     updateDerivedStats(endurance);
-    PERK_DATA.forEach((perk) => {
-      updateSelectedPerks(perk);
-    });
 
     // Update allocatable perks
     const level = LEVEL_DATA[0].total;
@@ -402,6 +399,40 @@ function updatePerkRequirementsMetStyling() {
   PERK_DATA.forEach((perk) => {
     updateSelectedPerks(perk);
   });
+}
+
+/**
+ * Add a info icon to an element that displays a popover with given text.
+ * 
+ * @param {*} element 
+ * @param {string} text 
+ */
+function appendPopoverIcon(element, text) {
+  // Create the popover with specified text
+  const popover = document.createElement("span");
+  popover.classList.add("popover");
+  popover.textContent = text;
+
+  // Create an info icon that houses the popover
+  const info = document.createElement("span");
+  info.innerHTML = "&#x1F6C8;"; // Unicode for an info icon
+  info.classList.add("popover-info-icon");
+
+  // Append the popover to the info icon
+  info.appendChild(popover);
+
+  // Toggle popup visibility on hover/click
+  const togglePopup = () => {
+    popover.style.display = popover.style.display === "block" ? "none" : "block";
+  };
+
+  // Mobile: Use click to toggle visibility
+  ["mouseenter", "mouseleave", "touchstart", "touchend"].forEach(function (evt) {
+    info.addEventListener(evt, togglePopup);
+  });
+
+  // Append the info icon (with popover) to the element
+  element.appendChild(info);
 }
 
 /**
@@ -1064,7 +1095,10 @@ function updatePlanner(selectedPerks) {
         plannerListItem.setAttribute("levelTaken", selectedPerk.levelTaken);
 
         const plannerPerkName = document.createElement("p");
-        plannerPerkName.innerHTML = `${selectedPerk.name}`;
+        plannerPerkName.innerHTML = `${selectedPerk.name} (${selectedPerk.requirementsArray})`;
+
+        // Ability to see perk description while it's in the planner
+        appendPopoverIcon(plannerPerkName, selectedPerk.description);
 
         plannerListItem.appendChild(plannerPerkName);
         perksList.appendChild(plannerListItem);
