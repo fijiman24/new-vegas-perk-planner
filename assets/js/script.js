@@ -415,7 +415,7 @@ function appendPopoverIcon(element, text) {
 
   // Create an info icon that houses the popover
   const info = document.createElement("span");
-  info.innerHTML = "&#x1F6C8;"; // Unicode for an info icon
+  info.innerHTML = "&#9432;"; // Unicode for an info icon
   info.classList.add("popover-info-icon");
 
   // Append the popover to the info icon
