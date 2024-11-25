@@ -403,9 +403,9 @@ function updatePerkRequirementsMetStyling() {
 
 /**
  * Add a info icon to an element that displays a popover with given text.
- * 
- * @param {*} element 
- * @param {string} text 
+ *
+ * @param {*} element
+ * @param {string} text
  */
 function appendPopoverIcon(element, text) {
   // Create the popover with specified text
