@@ -741,7 +741,7 @@ function updateSelectedPerks(perk) {
   // Update perk rows in Planner
   const allPerkItems = document.querySelectorAll(".planner-item");
   allPerkItems.forEach((perkItem) => {
-    const perkId = parseInt(perkItem.getAttribute("id"));
+    const perkId = perkItem.getAttribute("id");
     const perk = POINT_ALLOCATION_DATA.perk.selected.find((p) => p.id === perkId);
     if (perk) {
       updatePerkStyling(perkItem, perk, SPECIAL_DATA, SKILL_DATA, LEVEL_DATA);
@@ -812,7 +812,7 @@ function selectPerk(perk) {
 
   // We need to copy the item to make sure different ranks of same perk have different IDs
   POINT_ALLOCATION_DATA.perk.selected.push(JSON.parse(JSON.stringify(perk)));
-  POINT_ALLOCATION_DATA.perk.selected[POINT_ALLOCATION_DATA.perk.selected.length - 1].id = POINT_ALLOCATION_DATA.perk.allocated;
+  POINT_ALLOCATION_DATA.perk.selected[POINT_ALLOCATION_DATA.perk.selected.length - 1].id = `${perk.name}-${perk.ranksTaken}`;
   POINT_ALLOCATION_DATA.perk.allocated += 1;
   row.classList.add("selected-perk"); // Highlight the selected row
 
@@ -1115,8 +1115,8 @@ function updatePlanner(selectedPerks) {
       onEnd: function (evt) {
         const draggedItem = evt.item;
         const newLevel = evt.to.closest(".level-section").getAttribute("section-level");
-        const perkId = parseInt(draggedItem.getAttribute("id"));
-        const perk = selectedPerks.find((p) => parseInt(p.id) === perkId);
+        const perkId = draggedItem.getAttribute("id");
+        const perk = selectedPerks.find((p) => p.id === perkId);
         if (perk) {
           perk.levelTaken = parseInt(newLevel);
         }
@@ -1128,7 +1128,7 @@ function updatePlanner(selectedPerks) {
         const draggedItem = evt.dragged;
         const targetList = evt.to;
         const targetLevel = parseInt(targetList.closest(".level-section").getAttribute("section-level"), 10);
-        const perkId = parseInt(draggedItem.getAttribute("id"));
+        const perkId = draggedItem.getAttribute("id");
         const perkName = draggedItem.getAttribute("name");
         const perk = selectedPerks.find((p) => p.id === perkId);
 
